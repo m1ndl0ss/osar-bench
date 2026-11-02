@@ -128,7 +128,8 @@ def main(argv=None):
                 jobs.append((t, f, a.seed0 + i, path))
     ledger = Path(a.ledger)
     ledger.parent.mkdir(parents=True, exist_ok=True)
-    hist = [json.loads(l) for l in ledger.read_text().splitlines()] if ledger.exists() else []
+    hist = ([json.loads(l) for l in ledger.read_text().splitlines() if l.strip()]
+            if ledger.exists() else [])
     spent_total = sum(h["usd"] for h in hist)
     same = [h["usd"] for h in hist if h["model"] == a.model and h.get("ok")]
     est = (sum(same) / len(same) * len(jobs)) if same else None
