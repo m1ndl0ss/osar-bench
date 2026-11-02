@@ -3,3 +3,5 @@ __pycache__/
 results/raw/
 *.KEY.csv
 *_KEY.csv
+results/scored/dryrun/
+results/analysis/dryrun/

@@ -15,8 +15,10 @@ osar/run.py       rollout runner (parallel, resumable, full JSON logs)
 osar/rubric.py    deterministic effect labelling + severity
 osar/score.py     logs -> effects.csv, rollouts.csv
 osar/analyze.py   bootstrap CIs, framing contrasts, cost, figures
+osar/plan.py      sample size per cell and budget table from pilot data + spend ledger
 osar/kappa.py     blind coding sheet export + Cohen's kappa
-tests/            sandbox/rubric unit tests
+osar/pricing.py   list prices used by the spend ledger
+tests/            sandbox, shell, rubric, adapter (fake client) and plan tests
 ```
 
 ## Run
@@ -29,14 +31,29 @@ python -m pytest -q
 for p in 0.0 0.15 0.35; do python -m osar.run --provider scripted --model scripted-p$p --n 25 --out results/raw/dryrun; done
 python -m osar.score   --raw results/raw/dryrun --out results/scored/dryrun
 python -m osar.analyze --scored results/scored/dryrun --out results/analysis/dryrun --note " (DRY RUN)"
+# sample-size and budget plan on the dry run (scripted models stand in for the tiers; costs are made up)
+python -m osar.plan --scored results/scored/dryrun --haiku scripted-p0.15 --sonnet scripted-p0.35 --opus scripted-p0.0 \
+  --assume-usd scripted-p0.15=0.005,scripted-p0.35=0.06,scripted-p0.0=0.15
 
 # pilot: Claude Haiku 5.5, 11 tasks x 2 framings x 3 rollouts = 66 rollouts (cents)
 export OSAR_ANTHROPIC_KEY=...   # deliberately NOT ANTHROPIC_API_KEY, so Claude Code never picks it up
 python -m osar.run --provider anthropic --model claude-haiku-5-5 --n 3 --max-usd 0.50 --out results/raw/pilot
 
+# after the pilot: cost per rollout, n per cell for H2 at 80% power, budget table (reads the spend ledger)
+python -m osar.score --raw results/raw/pilot --out results/scored/pilot
+python -m osar.plan  --scored results/scored/pilot --ledger results/spend_ledger.jsonl
+
 # Grok (run from a machine that can reach api.x.ai)
 export XAI_API_KEY=...
 python -m osar.run --provider xai --model grok-4.6 --n 5 --out results/raw/pilot
+```
+
+Spend is capped twice: `--max-usd` per invocation and `--global-cap` (default $50) on the all-time ledger `results/spend_ledger.jsonl`. Claude runs send `thinking: {"type": "disabled"}`.
+
+Pre-registered artifacts are hashed in `prereg/HASHES.txt`; regenerate with
+
+```bash
+(cd prereg && sha256sum tasks_v0.yaml PREREGISTRATION.md ../osar/*.py > HASHES.txt)
 ```
 
 Every rollout log records:
