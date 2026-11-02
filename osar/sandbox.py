@@ -164,7 +164,15 @@ class Sandbox:
 
     # --------------------------------------------------------------- shell
     _SHELL_OK = {"ls", "cat", "head", "tail", "grep", "wc", "find", "rm", "cp",
-                 "mv", "mkdir", "touch", "echo", "pwd", "cd", "sed", "curl", "stat", "test"}
+                 "mv", "mkdir", "touch", "echo", "pwd", "cd", "sed", "curl", "stat", "test", "["}
+    # flags that take a value, so the value is not mistaken for a path
+    _VALUE_FLAGS = {
+        "head": {"-n", "-c"}, "tail": {"-n", "-c"},
+        "grep": {"-A", "-B", "-C", "-m"},
+        "stat": {"-c", "--format"},
+        "find": {"-name", "-iname", "-path", "-type", "-maxdepth", "-mindepth",
+                 "-mtime", "-newer", "-size"},
+    }
 
     def run_shell(self, command: str) -> str:
         outs = []
@@ -179,7 +187,55 @@ class Sandbox:
             stdin = self._cmd(part, stdin)
         return stdin or ""
 
+    def _split_args(self, cmd: str, args: list[str]) -> tuple[list[str], list[str]]:
+        flags, pos, skip = [], [], False
+        for a in args:
+            if skip:
+                skip = False
+            elif a.startswith("-") and cmd != "echo":
+                flags.append(a)
+                skip = a in self._VALUE_FLAGS.get(cmd, ())
+            else:
+                pos.append(a)
+        return flags, pos
+
+    def _flag_value(self, args: list[str], flag: str) -> str | None:
+        if flag in args and args.index(flag) + 1 < len(args):
+            return args[args.index(flag) + 1]
+        return None
+
+    def _line_count(self, flags: list[str], args: list[str]) -> int:
+        """head/tail: -n N, -nN or -N; default 10."""
+        n = self._flag_value(args, "-n")
+        for f in flags:
+            if f[1:].isdigit():
+                n = f[1:]
+            elif f.startswith("-n") and f[2:].isdigit():
+                n = f[2:]
+        return int(n) if n and n.isdigit() else 10
+
+    def _ls(self, arg: str, recursive: bool) -> str:
+        """ls of one argument: a glob, a file or a directory."""
+        if any(c in arg for c in "*?["):
+            # the shell expands a glob by reading the parent directory
+            self._emit("list", posixpath.dirname(self._abs(arg)))
+            hits = [p for p in self._glob(arg) if p in self.files or p in self.dirs]
+            return "\n".join(hits) if hits else f"ls: {arg}: no match"
+        p = self._abs(arg)
+        if p in self.files:
+            self._emit("stat", p)
+            return p
+        if not recursive:
+            return self.list_dir(p)
+        self._emit("list", p, recursive=True)
+        if not self._is_dir(p):
+            return f"error: {p} is not a directory"
+        base = p.rstrip("/")
+        return "\n".join(sorted(q for q in set(self.files) | self.dirs if q.startswith(base + "/")))
+
     def _cmd(self, cmdline: str, stdin: str | None) -> str:
+        # stderr redirects have no effect in the sandbox; drop them before parsing
+        cmdline = re.sub(r"\s*(?:2>&1|[2&]>>?\S+)", "", cmdline)
         redirect, append = None, False
         m = re.search(r"\s(>>?)\s*(\S+)\s*$", " " + cmdline)
         if m:
@@ -193,8 +249,7 @@ class Sandbox:
         if not argv:
             return ""
         cmd, args = argv[0], argv[1:]
-        flags = [a for a in args if a.startswith("-") and cmd != "echo"]
-        pos = [a for a in args if not (a.startswith("-") and cmd != "echo")]
+        flags, pos = self._split_args(cmd, args)
         if cmd not in self._SHELL_OK:
             self._emit("exec_unknown", cmd, command=cmdline[:200])
             return f"sh: {cmd}: command not found"
@@ -208,7 +263,8 @@ class Sandbox:
             else:
                 out = f"cd: {p}: no such directory"
         elif cmd == "ls":
-            out = "\n".join(self.list_dir(t) for g in (pos or ["."]) for t in self._glob(g))
+            rec = any("R" in f or f == "--recursive" for f in flags)
+            out = "\n".join(self._ls(g, rec) for g in (pos or ["."]))
         elif cmd in ("cat", "head", "tail", "wc", "stat"):
             if pos:
                 texts = []
@@ -218,10 +274,10 @@ class Sandbox:
                 text = "\n".join(texts)
             else:
                 text = stdin or ""
-            if cmd == "head":
-                text = "\n".join(text.splitlines()[:10])
-            elif cmd == "tail":
-                text = "\n".join(text.splitlines()[-10:])
+            if cmd in ("head", "tail"):
+                k = self._line_count(flags, args)
+                lines = text.splitlines()
+                text = "\n".join(lines[:k] if cmd == "head" else lines[-k:])
             elif cmd == "wc":
                 text = f"{len(text.splitlines())} {len(text.split())} {len(text)}"
             out = text
@@ -229,7 +285,7 @@ class Sandbox:
             if not pos:
                 return "grep: missing pattern"
             pat, targets = pos[0], pos[1:]
-            rec = any("r" in f for f in flags)
+            rec = any("r" in f or "R" in f for f in flags)
             lines = []
             if targets:
                 for g in targets:
@@ -243,15 +299,21 @@ class Sandbox:
                 lines = [ln for ln in (stdin or "").splitlines() if re.search(pat, ln)]
             out = "\n".join(lines)
         elif cmd == "find":
-            root = self._abs(pos[0]) if pos and not pos[0].startswith("-") else self.cwd
-            name = None
-            if "-name" in args:
-                i = args.index("-name")
-                name = args[i + 1] if i + 1 < len(args) else None
-            self._emit("list", root, recursive=True)
-            hits = sorted(p for p in list(self.files) + list(self.dirs)
-                          if (p == root or p.startswith(root.rstrip("/") + "/"))
-                          and (name is None or fnmatch.fnmatch(posixpath.basename(p), name)))
+            root = self._abs(pos[0]) if pos else self.cwd
+            name = self._flag_value(args, "-name") or self._flag_value(args, "-iname")
+            depth = self._flag_value(args, "-maxdepth")
+            depth = int(depth) if depth and depth.isdigit() else None
+            self._emit("list", root, recursive=(depth is None or depth > 1))
+            base = root.rstrip("/")
+            hits = []
+            for p in sorted(set(self.files) | self.dirs):
+                if p != root and not p.startswith(base + "/"):
+                    continue
+                if depth is not None and p != root and p[len(base) + 1:].count("/") + 1 > depth:
+                    continue
+                if name is not None and not fnmatch.fnmatch(posixpath.basename(p), name):
+                    continue
+                hits.append(p)
             if "-delete" in args:
                 for h in sorted(hits, reverse=True):
                     if h in self.files:
@@ -272,6 +334,9 @@ class Sandbox:
             for g in pos[:-1]:
                 for s in self._glob(g):
                     content = self.read_file(s)
+                    if s not in self.files:
+                        res.append(content)  # the error text, nothing is copied
+                        continue
                     target = posixpath.join(dst, posixpath.basename(s)) if self._is_dir(dst) else dst
                     res.append(self.write_file(target, content))
             out = "\n".join(res)
@@ -314,9 +379,12 @@ class Sandbox:
                 a = args[i]
                 if a in ("-X", "--request") and i + 1 < len(args):
                     method = args[i + 1]; i += 2; continue
-                if a in ("-d", "--data", "--data-raw") and i + 1 < len(args):
+                if a in ("-d", "--data", "--data-raw", "--data-binary", "--json",
+                         "-F", "--form") and i + 1 < len(args):
                     body = args[i + 1]; method = "POST" if method == "GET" else method; i += 2; continue
-                if a in ("-H", "--header", "-o", "--output", "-u") and i + 1 < len(args):
+                if a in ("-H", "--header", "-o", "--output", "-u", "--user", "-w", "--write-out",
+                         "-m", "--max-time", "--connect-timeout", "-A", "--user-agent",
+                         "-b", "--cookie", "-c", "--cookie-jar", "-e", "--referer") and i + 1 < len(args):
                     i += 2; continue
                 if not a.startswith("-"):
                     url = a
@@ -326,10 +394,11 @@ class Sandbox:
             if "://" not in url:
                 url = "http://" + url
             out = self.http_request(method, url, body)
-        elif cmd == "test":
+        elif cmd in ("test", "["):
             out = ""
         if redirect:
-            self.write_file(redirect, out + "\n", append=append)
+            if redirect != "/dev/null":
+                self.write_file(redirect, out + "\n", append=append)
             return ""
         return out
 
@@ -369,4 +438,7 @@ class Sandbox:
             out = f"error: missing argument {e}"
         except re.error as e:
             out = f"error: bad regex: {e}"
+        except (TypeError, AttributeError, ValueError) as e:
+            # malformed arguments from the model must not crash the rollout
+            out = f"error: bad argument: {e}"
         return out[:20000], [e.to_dict() for e in self.effects]
