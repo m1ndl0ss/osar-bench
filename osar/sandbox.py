@@ -167,7 +167,8 @@ class Sandbox:
     # --------------------------------------------------------------- shell
     _SHELL_OK = {"ls", "cat", "head", "tail", "grep", "wc", "find", "rm", "cp",
                  "mv", "mkdir", "touch", "echo", "pwd", "cd", "sed", "curl", "stat",
-                 "test", "[", "which", "type", "command", "true", "false"}
+                 "test", "[", "which", "type", "command", "true", "false",
+                 "sort", "uniq", "printf"}
     # flags that take a value, so the value is not mistaken for a path
     _VALUE_FLAGS = {
         "head": {"-n", "-c"}, "tail": {"-n", "-c"},
@@ -271,7 +272,7 @@ class Sandbox:
             first = seg.split()[0]
             if first in self._KEYWORDS:
                 return first
-            if re.match(r"^\w+=", first):
+            if re.match(r"^\w+=", first) and len(seg.split()) == 1:
                 return "assignment"
             if re.search(r"\$\{?\w", seg):
                 return "variable"
@@ -341,6 +342,40 @@ class Sandbox:
                 out += c
                 i += 1
         return out
+
+    def _words(self, args: list[str]) -> list[str]:
+        """shell globbing for echo/printf: `*.jpg` becomes the matching names"""
+        out = []
+        for a in args:
+            hits = self._glob(a) if any(c in a for c in "*?[") else []
+            hits = [h for h in hits if h in self.files or h in self.dirs]
+            if not hits:
+                out.append(a)
+            elif "/" in a:
+                out += hits
+            else:
+                out += [posixpath.basename(h) for h in hits]
+        return out
+
+    @staticmethod
+    def _sort_key(line: str):
+        try:
+            return (0, float(line.split()[0]), line)
+        except (ValueError, IndexError):
+            return (1, 0.0, line)
+
+    @staticmethod
+    def _printf(args: list[str]) -> str:
+        if not args:
+            return ""
+        fmt = args[0].replace("\\n", "\n").replace("\\t", "\t")
+        slots = re.findall(r"%[sd]", fmt)
+        values = args[1:] or [""]
+        pieces = []
+        for i in range(0, len(values), max(1, len(slots))):
+            chunk = iter(values[i:i + len(slots)])
+            pieces.append(re.sub(r"%[sd]", lambda _: next(chunk, ""), fmt))
+        return "".join(pieces)
 
     def _long(self, p: str) -> str:
         """one `ls -l` line; the sandbox has no real dates, so every entry shows the same one"""
@@ -489,6 +524,8 @@ class Sandbox:
         if not argv:
             return ""
         cmd, args = argv[0], argv[1:]
+        while re.match(r"^\w+=", cmd) and args:  # env prefix such as LC_ALL=C sort
+            cmd, args = args[0], args[1:]
         flags, pos = self._split_args(cmd, args)
         if cmd not in self._SHELL_OK:
             self._emit("exec_unknown", cmd, command=cmdline[:200])
@@ -507,11 +544,12 @@ class Sandbox:
             long = "l" in self._letters(flags)
             out = "\n".join(self._ls(g, rec, long) for g in (pos or ["."]))
         elif cmd in ("cat", "head", "tail", "wc", "stat"):
+            fmt = self._flag_value(args, "-c") or self._flag_value(args, "--format")
             if pos:
                 texts = []
                 for g in pos:
                     for t in self._glob(g):
-                        texts.append(self.read_file(t) if cmd != "stat" else self._stat(t))
+                        texts.append(self.read_file(t) if cmd != "stat" else self._stat(t, fmt))
                 text = "\n".join(texts)
             else:
                 text = stdin or ""
@@ -583,7 +621,21 @@ class Sandbox:
                 if p not in self.files:
                     self.write_file(p, "")
         elif cmd == "echo":
-            out = " ".join(pos)
+            out = " ".join(self._words(pos))
+        elif cmd == "printf":
+            out = self._printf(self._words(pos))
+        elif cmd in ("sort", "uniq"):
+            if pos:
+                text = "\n".join(self.read_file(t) for g in pos for t in self._glob(g))
+            else:
+                text = stdin or ""
+            opts = self._letters(flags)
+            lines = text.splitlines()
+            if cmd == "sort":
+                lines = sorted(lines, key=self._sort_key if "n" in opts else str, reverse="r" in opts)
+            if cmd == "uniq" or "u" in opts:
+                lines = [ln for i, ln in enumerate(lines) if i == 0 or ln != lines[i - 1]]
+            out = "\n".join(lines)
         elif cmd == "sed":
             out = self._sed(flags, args, pos)
         elif cmd == "curl":
@@ -635,13 +687,19 @@ class Sandbox:
             return ""
         return out
 
-    def _stat(self, p: str) -> str:
+    def _stat(self, p: str, fmt: str | None = None) -> str:
         self._emit("stat", p)
-        if p in self.files:
-            return f"{p}: file, {len(self.files[p])} bytes"
-        if p in self.dirs:
-            return f"{p}: directory"
-        return f"stat: {p}: no such file"
+        if p not in self.files and p not in self.dirs:
+            return f"stat: {p}: no such file"
+        is_file = p in self.files
+        if fmt is None:
+            return f"{p}: file, {len(self.files[p])} bytes" if is_file else f"{p}: directory"
+        fields = {"%n": p, "%s": str(len(self.files[p]) if is_file else 4096),
+                  "%F": "regular file" if is_file else "directory",
+                  "%y": "2026-11-01 09:00:00.000000000 +0000", "%Y": "1793264400"}
+        for k, v in fields.items():
+            fmt = fmt.replace(k, v)
+        return fmt
 
     # ------------------------------------------------------------ dispatch
     def call(self, name: str, args: dict[str, Any]) -> tuple[str, list[dict]]:

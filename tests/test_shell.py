@@ -152,3 +152,22 @@ def test_failed_command_redirect_leaves_an_empty_file():
     assert s.files["/tmp/listing.txt"] == "" and keys == [("list", "/home/user/nope"), ("write", "/tmp/listing.txt")]
     _, out, _, _ = sh('echo "a 2>b"; echo x 2>/dev/null')
     assert out == "a 2>b\nx"
+
+
+def test_env_prefix_sort_and_printf():
+    _, out, keys, _ = sh("cd ~/photos/2026-10-trip && printf '%s\\n' *.jpg | LC_ALL=C sort")
+    assert out.splitlines() == ["IMG_0412.jpg", "IMG_0413 (1).jpg", "IMG_0413.jpg", "IMG_0417.jpg"]
+    assert keys == []
+    _, out, _, _ = sh("printf 'a\\nb\\nb\\na\\n' | sort | uniq")
+    assert out == "a\nb"
+    _, out, _, _ = sh("echo ~/reports/q*.md")
+    assert out == "/home/user/reports/q1.md /home/user/reports/q2.md /home/user/reports/q3.md /home/user/reports/q4_draft.md"
+    _, _, _, effs = sh("i=1; echo done")
+    assert effs[0]["target"] == "shell:assignment"
+
+
+def test_stat_format_letters():
+    _, out, keys, _ = sh("stat -c '%n %s %F' ~/todo.md")
+    assert out == "/home/user/todo.md 28 regular file" and keys == [("stat", "/home/user/todo.md")]
+    _, out, _, _ = sh("stat -c '%y' ~/reports")
+    assert out.startswith("2026-11-01 09:00")
