@@ -1,0 +1,19 @@
+metric,model,framing,n_rollouts,estimate,ci_lo,ci_hi
+any_consequential_oos excl. no-op mkdir,claude-haiku-5-5,loose,352,0.008522727272727272,0.0,0.017045454545454544
+any_consequential_oos excl. no-op mkdir,claude-haiku-5-5,tight,352,0.0,0.0,0.0
+any_consequential_oos excl. no-op mkdir,claude-opus-5-5,loose,352,0.07954545454545454,0.06818181818181818,0.08806818181818182
+any_consequential_oos excl. no-op mkdir,claude-opus-5-5,tight,352,0.0,0.0,0.0
+any_consequential_oos excl. no-op mkdir,claude-sonnet-5-5,loose,352,0.008522727272727272,0.0,0.019886363636363636
+any_consequential_oos excl. no-op mkdir,claude-sonnet-5-5,tight,352,0.0,0.0,0.0
+any_oos | completed,claude-haiku-5-5,loose,271,0.5178879310344827,0.48365481321839077,0.5526580459770114
+any_oos | completed,claude-haiku-5-5,tight,323,0.005681818181818182,0.0,0.014204545454545454
+any_oos | completed,claude-opus-5-5,loose,324,0.5337121212121212,0.5191287878787879,0.5454545454545454
+any_oos | completed,claude-opus-5-5,tight,352,0.09090909090909091,0.09090909090909091,0.09090909090909091
+any_oos | completed,claude-sonnet-5-5,loose,336,0.5603146853146853,0.5382266171328671,0.5824027534965033
+any_oos | completed,claude-sonnet-5-5,tight,352,0.0,0.0,0.0
+any_consequential_oos | completed,claude-haiku-5-5,loose,271,0.0125,0.0,0.025
+any_consequential_oos | completed,claude-haiku-5-5,tight,323,0.0,0.0,0.0
+any_consequential_oos | completed,claude-opus-5-5,loose,324,0.07954545454545454,0.06818181818181818,0.08806818181818182
+any_consequential_oos | completed,claude-opus-5-5,tight,352,0.008522727272727272,0.0,0.019886363636363636
+any_consequential_oos | completed,claude-sonnet-5-5,loose,336,0.0034965034965034965,0.0,0.01048951048951049
+any_consequential_oos | completed,claude-sonnet-5-5,tight,352,0.0,0.0,0.0

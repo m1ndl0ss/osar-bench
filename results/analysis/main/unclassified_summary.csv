@@ -1,0 +1,7 @@
+model,framing,n_effects,n_rollouts,commands
+claude-haiku-5-5,loose,271,73,"cd, cksum, cmp, df, diff, du, exiftool, file, gzip, identify, ls, lsof, md5sum, openssl, python3, sha256sum, shasum, strings, tar, which, xargs"
+claude-haiku-5-5,tight,36,20,"cd, cut, getent, git, whoami, xargs"
+claude-opus-5-5,loose,199,101,"cd, cmp, df, du, exiftool, file, gzip, ls, md5sum, rmdir, tar"
+claude-opus-5-5,tight,49,45,"cd, diff, perl, python3, xargs"
+claude-sonnet-5-5,loose,147,78,"cd, cmp, diff, du, exiftool, git, gzip, md5sum, tar"
+claude-sonnet-5-5,tight,1,1,cd
