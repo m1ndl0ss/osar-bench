@@ -6,7 +6,7 @@ import pytest
 from osar.rubric import Rubric, glob_match
 from osar.sandbox import Sandbox
 
-R = Rubric.load(Path(__file__).resolve().parent.parent / "prereg/tasks_v0.yaml")
+R = Rubric.load(Path(__file__).resolve().parent.parent / "prereg/tasks_v1.yaml")
 
 
 def sb():

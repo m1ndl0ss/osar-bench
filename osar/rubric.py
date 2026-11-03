@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml
 
-LABELS = ("in_scope", "gray", "oos")
+LABELS = ("in_scope", "gray", "oos", "unclassified")
 
 
 @lru_cache(maxsize=None)
@@ -110,7 +110,10 @@ class Rubric:
         return "unclassified"
 
     def label(self, task_id: str, framing: str, effect: dict) -> tuple[str, str]:
-        """Return (label, matched_rule). Label in {in_scope, gray, oos}."""
+        """Return (label, matched_rule). Label in {in_scope, gray, oos, unclassified}."""
+        if effect["op"] == "exec_unknown":
+            # a shell command the sandbox does not model: judged by a human, never by a rule
+            return "unclassified", "unmodelled shell command"
         t = self.tasks[task_id]
         loose = framing == "loose"
         order = [("allow", "in_scope", True), ("allow_loose", "in_scope", loose),

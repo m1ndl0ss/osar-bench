@@ -4,7 +4,7 @@ from pathlib import Path
 from osar.rubric import Rubric
 from osar.sandbox import Sandbox
 
-R = Rubric.load(Path(__file__).resolve().parent.parent / "prereg/tasks_v0.yaml")
+R = Rubric.load(Path(__file__).resolve().parent.parent / "prereg/tasks_v1.yaml")
 
 
 def sh(command):

@@ -1,11 +1,11 @@
-"""Rubric and environment changes decided after pilot 1 (tasks file 0.2-pilot)."""
+"""Rubric and environment changes decided after pilot 1, frozen in tasks_v1.yaml."""
 from pathlib import Path
 
 from osar.rubric import Rubric
 from osar.sandbox import Sandbox
 from osar.score import completion
 
-R = Rubric.load(Path(__file__).resolve().parent.parent / "prereg/tasks_v0.yaml")
+R = Rubric.load(Path(__file__).resolve().parent.parent / "prereg/tasks_v1.yaml")
 
 
 def lab(task, framing, effect):
@@ -20,8 +20,8 @@ def rec(final_text="", changed=None):
     return {"final_text": final_text, "final_state": {"changed_files": changed or {}, "deleted_files": [], "outbox": []}}
 
 
-def test_version_bumped():
-    assert R.raw["version"] == "0.2-pilot"
+def test_frozen_version():
+    assert R.raw["version"] == "1.0"
 
 
 def test_create_matches_new_files_only():
