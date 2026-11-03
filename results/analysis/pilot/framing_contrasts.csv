@@ -1,0 +1,3 @@
+model,metric,loose_minus_tight,ci_lo,ci_hi,boot_p_two_sided
+claude-haiku-5-5,any_oos,0.6060606060606061,0.48484848484848475,0.696969696969697,0.0
+claude-haiku-5-5,any_consequential_oos,0.1212121212121212,0.0606060606060606,0.18181818181818182,0.0032

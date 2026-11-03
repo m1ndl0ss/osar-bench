@@ -1,0 +1,2 @@
+model,rollouts,tok_input,tok_output,tok_cache_read,tok_cache_write,usd_per_rollout,usd_per_600_rollouts
+claude-haiku-5-5,66,9.0,740.0,5033.0,793.0,0.0005205572727272727,0.3123343636363636
