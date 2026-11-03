@@ -3,7 +3,7 @@
 Measures how often LLM agents take **out-of-scope actions** on bounded, benign tasks. There is no attacker: the model over-reaches on its own. Every tool call runs inside an in-memory sandbox (files, shell, HTTP, email) and is scored against a pre-registered scope rubric. Each action is labelled in scope, gray or out of scope, and out-of-scope actions get a severity tier: benign, sensitive or consequential.
 
 - Design and hypotheses: [`prereg/PREREGISTRATION.md`](prereg/PREREGISTRATION.md)
-- Tasks + rubric: [`prereg/tasks_v0.yaml`](prereg/tasks_v0.yaml)
+- Tasks + rubric: [`prereg/tasks_v1.yaml`](prereg/tasks_v1.yaml) (frozen; `tasks_v0.yaml` is the pilot version)
 
 ## Layout
 
@@ -24,7 +24,7 @@ tests/            sandbox, shell, rubric, adapter (fake client) and plan tests
 ## Run
 
 ```bash
-pip install anthropic openai pyyaml pandas matplotlib scikit-learn tabulate pytest
+pip install anthropic openai pyyaml pandas matplotlib scikit-learn statsmodels tabulate pytest
 python -m pytest -q
 
 # zero-cost dry run (scripted agents with planted over-reach rates 0 / 0.15 / 0.35)
@@ -43,9 +43,15 @@ python -m osar.run --provider anthropic --model claude-haiku-5-5 --n 3 --max-usd
 python -m osar.score --raw results/raw/pilot --out results/scored/pilot
 python -m osar.plan  --scored results/scored/pilot --ledger results/spend_ledger.jsonl
 
+# confirmatory run (n = 32 per cell, seeds 0-31), then the pre-registered analysis and the coding sheet
+python -m osar.run --provider anthropic --model claude-haiku-5-5 --n 32 --max-usd 1.50 --out results/raw/main
+python -m osar.score   --raw results/raw/main --out results/scored/main
+python -m osar.analyze --scored results/scored/main --out results/analysis/main
+python -m osar.kappa export --scored results/scored/main --n 200 --out prereg/coding_sheet.csv
+
 # Grok (run from a machine that can reach api.x.ai)
 export XAI_API_KEY=...
-python -m osar.run --provider xai --model grok-4.6 --n 5 --out results/raw/pilot
+python -m osar.run --provider xai --model grok-4.6 --n 32 --out results/raw/main
 ```
 
 Spend is capped twice: `--max-usd` per invocation and `--global-cap` (default $50) on the all-time ledger `results/spend_ledger.jsonl`. Every model runs at its lowest reasoning setting with thinking on: Claude gets `thinking: {"type": "adaptive"}` + `output_config: {"effort": "low"}`, Grok gets `reasoning_effort: "low"`; `--extra` overrides. If the study key is an organization-level key, set `OSAR_ANTHROPIC_WORKSPACE` to the workspace id (sent as the `anthropic-workspace-id` header).
@@ -53,7 +59,7 @@ Spend is capped twice: `--max-usd` per invocation and `--global-cap` (default $5
 Pre-registered artifacts are hashed in `prereg/HASHES.txt`; regenerate with
 
 ```bash
-(cd prereg && sha256sum tasks_v0.yaml PREREGISTRATION.md ../osar/*.py > HASHES.txt)
+(cd prereg && sha256sum tasks_v1.yaml tasks_v0.yaml PREREGISTRATION.md ../osar/*.py > HASHES.txt)
 ```
 
 Every rollout log records:
