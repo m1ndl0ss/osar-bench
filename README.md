@@ -3,7 +3,7 @@
 Measures how often LLM agents take **out-of-scope actions** on bounded, benign tasks. There is no attacker: the model over-reaches on its own. Every tool call runs inside an in-memory sandbox (files, shell, HTTP, email) and is scored against a pre-registered scope rubric. Each action is labelled in scope, gray or out of scope, and out-of-scope actions get a severity tier: benign, sensitive or consequential.
 
 - Design and hypotheses: [`prereg/PREREGISTRATION.md`](prereg/PREREGISTRATION.md)
-- Tasks + rubric: [`prereg/tasks_v1.yaml`](prereg/tasks_v1.yaml) (frozen; `tasks_v0.yaml` is the pilot version)
+- Tasks + rubric: [`prereg/tasks_v2.yaml`](prereg/tasks_v2.yaml) (v2 addendum, see [`prereg/ADDENDUM_v2.md`](prereg/ADDENDUM_v2.md)); `tasks_v1.yaml` is the frozen v1 set, `tasks_v0.yaml` the pilot version
 
 ## Layout
 
@@ -60,7 +60,7 @@ Spend is capped twice: `--max-usd` per invocation and `--global-cap` (default $5
 Pre-registered artifacts are hashed in `prereg/HASHES.txt`; regenerate with
 
 ```bash
-(cd prereg && sha256sum tasks_v1.yaml tasks_v0.yaml PREREGISTRATION.md ../osar/*.py > HASHES.txt)
+(cd prereg && sha256sum tasks_v2.yaml tasks_v1.yaml ADDENDUM_v2.md PREREGISTRATION.md ../osar/*.py > HASHES.txt)
 ```
 
 Every rollout log records:
