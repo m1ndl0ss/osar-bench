@@ -49,6 +49,8 @@ class Sandbox:
         self.cwd = cwd
         self.outbox: list[dict] = []
         self.effects: list[Effect] = []  # effects of the current call
+        self._heredocs: list[str] = []  # bodies of << EOF blocks in the current command
+        self._status: bool | None = None  # exit status set by test/grep/which
 
     # ------------------------------------------------------------- helpers
     def _abs(self, path: str) -> str:
@@ -164,28 +166,127 @@ class Sandbox:
 
     # --------------------------------------------------------------- shell
     _SHELL_OK = {"ls", "cat", "head", "tail", "grep", "wc", "find", "rm", "cp",
-                 "mv", "mkdir", "touch", "echo", "pwd", "cd", "sed", "curl", "stat", "test", "["}
+                 "mv", "mkdir", "touch", "echo", "pwd", "cd", "sed", "curl", "stat",
+                 "test", "[", "which", "type", "command", "true", "false"}
     # flags that take a value, so the value is not mistaken for a path
     _VALUE_FLAGS = {
         "head": {"-n", "-c"}, "tail": {"-n", "-c"},
-        "grep": {"-A", "-B", "-C", "-m"},
+        "grep": {"-A", "-B", "-C", "-m", "-e"},
+        "sed": {"-e"},
         "stat": {"-c", "--format"},
         "find": {"-name", "-iname", "-path", "-type", "-maxdepth", "-mindepth",
-                 "-mtime", "-newer", "-size"},
+                 "-mtime", "-newer", "-newermt", "-size"},
     }
+    # shell syntax the sandbox refuses as a whole instead of running half of it
+    _KEYWORDS = {"for", "while", "until", "if", "then", "else", "elif", "fi", "do", "done",
+                 "case", "esac", "select", "function", "{", "}", "!"}
+    _ERR_PREFIXES = ("error:", "sh:", "cd:", "grep:", "sed:", "cp:", "mv:", "ls:", "curl:", "stat:")
 
     def run_shell(self, command: str) -> str:
-        outs = []
-        for seg in re.split(r"\s*(?:&&|;)\s*", command.strip()):
-            if seg:
-                outs.append(self._pipeline(seg))
-        return "\n".join(o for o in outs if o)
+        command, self._heredocs = self._pull_heredocs(command)
+        command = re.sub(r"\$\{?HOME\}?", "/home/user", command)
+        command = re.sub(r"\$\{?USER\}?", "user", command)
+        command = command.replace("$PWD", self.cwd)
+        segments = self._split(command, "list")
+        bad = self._unsupported(command, segments)
+        if bad:
+            self._emit("exec_unknown", f"shell:{bad}", command=command.strip()[:200])
+            return (f"sh: '{bad}' is not supported by this shell: no loops, conditionals, "
+                    "variables or command substitution. Run plain commands one at a time.")
+        outs, ok = [], True
+        for op, seg in segments:
+            if (op == "&&" and not ok) or (op == "||" and ok):
+                continue
+            out, ok = self._pipeline(seg)
+            if out:
+                outs.append(out)
+        return "\n".join(outs)
 
-    def _pipeline(self, seg: str) -> str:
-        stdin = None
-        for part in [p.strip() for p in seg.split("|")]:
-            stdin = self._cmd(part, stdin)
-        return stdin or ""
+    def _pull_heredocs(self, command: str) -> tuple[str, list[str]]:
+        """Replace each `<< EOF ... EOF` with a marker and collect the bodies."""
+        lines, out, bodies, i = command.split("\n"), [], [], 0
+        while i < len(lines):
+            m = re.search(r"<<-?\s*(['\"]?)(\w+)\1", lines[i])
+            if not m:
+                out.append(lines[i])
+                i += 1
+                continue
+            out.append(lines[i][:m.start()] + " __HEREDOC__ " + lines[i][m.end():])
+            body, i = [], i + 1
+            while i < len(lines) and lines[i].strip() != m.group(2):
+                body.append(lines[i])
+                i += 1
+            bodies.append("\n".join(body) + "\n")
+            i += 1
+        return "\n".join(out), bodies
+
+    @staticmethod
+    def _split(text: str, mode: str) -> list:
+        """Split on list operators (mode "list": ; newline && ||, giving (operator,
+        segment) pairs) or on pipes (mode "pipe", giving segments). Quoted and
+        backslashed characters never split. Bare parentheses are dropped, so
+        `(a || b)` runs as `a || b`."""
+        parts, cur, op, quote, i = [], "", None, None, 0
+        while i < len(text):
+            c = text[i]
+            if quote:
+                cur += c
+                if c == quote:
+                    quote = None
+                elif c == "\\" and quote == '"' and i + 1 < len(text):
+                    cur += text[i + 1]
+                    i += 1
+                i += 1
+                continue
+            if c == "\\" and i + 1 < len(text):
+                cur += text[i:i + 2]
+                i += 2
+                continue
+            if c in "'\"":
+                quote = c
+            two = text[i:i + 2]
+            if mode == "list" and two in ("&&", "||"):
+                parts.append((op, cur))
+                cur, op, i = "", two, i + 2
+                continue
+            if mode == "list" and c in ";\n":
+                parts.append((op, cur))
+                cur, op, i = "", ";", i + 1
+                continue
+            if mode == "pipe" and c == "|":
+                parts.append(cur)
+                cur, i = "", i + 1
+                continue
+            cur += " " if c in "()" else c
+            i += 1
+        parts.append((op, cur) if mode == "list" else cur)
+        if mode == "list":
+            return [(o, s) for o, s in parts if s.strip()]
+        return [s for s in parts if s.strip()]
+
+    def _unsupported(self, command: str, segments: list) -> str | None:
+        if "$(" in command or "`" in command:
+            return "$(...)"
+        for _, seg in segments:
+            first = seg.split()[0]
+            if first in self._KEYWORDS:
+                return first
+            if re.match(r"^\w+=", first):
+                return "assignment"
+            if re.search(r"\$\{?\w", seg):
+                return "variable"
+        return None
+
+    def _pipeline(self, seg: str) -> tuple[str, bool]:
+        stdin, ok = None, True
+        for part in self._split(seg, "pipe"):
+            self._status = None
+            stdin = self._cmd(part.strip(), stdin)
+            ok = self._status if self._status is not None else not self._failed(stdin)
+        return stdin or "", ok
+
+    def _failed(self, out: str) -> bool:
+        return any(line.startswith(self._ERR_PREFIXES) for line in out.splitlines())
 
     def _split_args(self, cmd: str, args: list[str]) -> tuple[list[str], list[str]]:
         flags, pos, skip = [], [], False
@@ -199,10 +300,16 @@ class Sandbox:
                 pos.append(a)
         return flags, pos
 
-    def _flag_value(self, args: list[str], flag: str) -> str | None:
+    @staticmethod
+    def _flag_value(args: list[str], flag: str) -> str | None:
         if flag in args and args.index(flag) + 1 < len(args):
             return args[args.index(flag) + 1]
         return None
+
+    @staticmethod
+    def _letters(flags: list[str]) -> str:
+        """single-letter options, so "-ril" gives "ril"; long options are skipped"""
+        return "".join(f[1:] for f in flags if not f.startswith("--"))
 
     def _line_count(self, flags: list[str], args: list[str]) -> int:
         """head/tail: -n N, -nN or -N; default 10."""
@@ -214,38 +321,171 @@ class Sandbox:
                 n = f[2:]
         return int(n) if n and n.isdigit() else 10
 
-    def _ls(self, arg: str, recursive: bool) -> str:
+    @staticmethod
+    def _bre(pat: str) -> str:
+        """Basic regex (the grep/sed default) to Python: \\( \\) \\| \\{ \\} \\+ \\?
+        are the operators and the bare characters are literals."""
+        out, i = "", 0
+        while i < len(pat):
+            c = pat[i]
+            if c == "\\" and i + 1 < len(pat) and pat[i + 1] in "(){}|+?":
+                out += pat[i + 1]
+                i += 2
+            elif c in "(){}|+?":
+                out += "\\" + c
+                i += 1
+            elif c == "\\" and i + 1 < len(pat):
+                out += pat[i:i + 2]
+                i += 2
+            else:
+                out += c
+                i += 1
+        return out
+
+    def _long(self, p: str) -> str:
+        """one `ls -l` line; the sandbox has no real dates, so every entry shows the same one"""
+        name = posixpath.basename(p) or "/"
+        if p in self.dirs:
+            return f"drwxr-xr-x 2 user user     4096 Nov  1 09:00 {name}"
+        return f"-rw-r--r-- 1 user user {len(self.files[p]):>8} Nov  1 09:00 {name}"
+
+    def _ls(self, arg: str, recursive: bool, long: bool) -> str:
         """ls of one argument: a glob, a file or a directory."""
         if any(c in arg for c in "*?["):
             # the shell expands a glob by reading the parent directory
             self._emit("list", posixpath.dirname(self._abs(arg)))
             hits = [p for p in self._glob(arg) if p in self.files or p in self.dirs]
-            return "\n".join(hits) if hits else f"ls: {arg}: no match"
+            if not hits:
+                return f"ls: {arg}: no match"
+            return "\n".join(self._long(p) if long else p for p in hits)
         p = self._abs(arg)
         if p in self.files:
             self._emit("stat", p)
-            return p
-        if not recursive:
+            return self._long(p) if long else p
+        if recursive:
+            self._emit("list", p, recursive=True)
+            if not self._is_dir(p):
+                return f"error: {p} is not a directory"
+            base = p.rstrip("/")
+            return "\n".join(sorted(q for q in set(self.files) | self.dirs if q.startswith(base + "/")))
+        if not long:
             return self.list_dir(p)
-        self._emit("list", p, recursive=True)
+        self._emit("list", p)
         if not self._is_dir(p):
             return f"error: {p} is not a directory"
-        base = p.rstrip("/")
-        return "\n".join(sorted(q for q in set(self.files) | self.dirs if q.startswith(base + "/")))
+        kids = [posixpath.join(p, c.rstrip("/")) for c in self._children(p)]
+        return "\n".join([f"total {len(kids)}"] + [self._long(k) for k in kids])
+
+    def _grep(self, flags: list[str], args: list[str], pos: list[str], stdin: str | None) -> str:
+        opts = self._letters(flags)
+        pat = self._flag_value(args, "-e")
+        targets = pos if pat is not None else pos[1:]
+        if pat is None:
+            if not pos:
+                return "grep: missing pattern"
+            pat = pos[0]
+        if "F" in opts:
+            pat = re.escape(pat)
+        elif "E" not in opts and "P" not in opts:
+            pat = self._bre(pat)
+        rx = re.compile(pat, re.I if "i" in opts else 0)
+        include = [f.split("=", 1)[1] for f in flags if f.startswith("--include=")]
+        exclude = [f.split("=", 1)[1] for f in flags if f.startswith("--exclude=")]
+
+        def wanted(path):
+            name = posixpath.basename(path)
+            if include and not any(fnmatch.fnmatch(name, g) for g in include):
+                return False
+            return not any(fnmatch.fnmatch(name, g) for g in exclude)
+
+        errors, matches = [], []  # matches: (path or None, line number, line)
+        if targets:
+            for g in targets:
+                for t in self._glob(g):
+                    if self._is_dir(t):
+                        if "r" not in opts and "R" not in opts:
+                            errors.append(f"grep: {t}: Is a directory")
+                            continue
+                        paths = [f for f in sorted(self.files)
+                                 if f.startswith(t.rstrip("/") + "/") and wanted(f)]
+                    else:
+                        paths = [t]
+                    for pth in paths:
+                        txt = self.read_file(pth)
+                        if pth not in self.files:
+                            errors.append(f"grep: {pth}: No such file or directory")
+                            continue
+                        for i, ln in enumerate(txt.splitlines(), 1):
+                            if bool(rx.search(ln)) != ("v" in opts):
+                                matches.append((pth, i, ln))
+        else:
+            for i, ln in enumerate((stdin or "").splitlines(), 1):
+                if bool(rx.search(ln)) != ("v" in opts):
+                    matches.append((None, i, ln))
+        self._status = bool(matches)
+        if "c" in opts:
+            paths = sorted({m[0] for m in matches if m[0]}) or [None]
+            lines = [(f"{p}:" if p and len(targets) > 1 else "") + str(sum(1 for m in matches if m[0] == p))
+                     for p in paths]
+        elif "l" in opts:
+            lines = sorted({m[0] for m in matches if m[0]})
+        else:
+            many = len(targets) > 1 or "r" in opts or "R" in opts
+            lines = [(f"{p}:" if p and many else "") + (f"{i}:" if "n" in opts else "") + ln
+                     for p, i, ln in matches]
+        return "\n".join(errors + lines)
+
+    def _sed(self, flags: list[str], args: list[str], pos: list[str]) -> str:
+        script = self._flag_value(args, "-e")
+        files = pos if script is not None else pos[1:]
+        if script is None and pos:
+            script = pos[0]
+        if script is None or not files:
+            return "sed: usage: sed [-i] 's/old/new/' file"
+        d = re.escape(script[1:2])
+        mm = re.match(rf"s{d}((?:[^{d}\\]|\\.)*){d}((?:[^{d}\\]|\\.)*){d}(g?)$", script) if script[:1] == "s" else None
+        if not mm:
+            return "sed: only s/// supported"
+        pat, repl, every = mm.group(1), mm.group(2), bool(mm.group(3))
+        if not any(f in ("-E", "-r") for f in flags):
+            pat = self._bre(pat)
+        repl = re.sub(r"(?<!\\)&", r"\\g<0>", repl)
+        inplace = any(f.startswith("-i") for f in flags)
+        res = []
+        for g in files:
+            for t in self._glob(g):
+                txt = self.read_file(t)
+                if t not in self.files:
+                    res.append(txt)
+                    continue
+                lines = [re.sub(pat, repl, ln, count=0 if every else 1) for ln in txt.split("\n")]
+                new = "\n".join(lines)
+                if inplace:
+                    res.append(self.write_file(t, new).replace("wrote", "edited"))
+                else:
+                    res.append(new)
+        return "\n".join(res)
 
     def _cmd(self, cmdline: str, stdin: str | None) -> str:
-        # stderr redirects have no effect in the sandbox; drop them before parsing
-        cmdline = re.sub(r"\s*(?:2>&1|[2&]>>?\S+)", "", cmdline)
-        redirect, append = None, False
-        m = re.search(r"\s(>>?)\s*(\S+)\s*$", " " + cmdline)
-        if m:
-            append = m.group(1) == ">>"
-            redirect = m.group(2)
-            cmdline = cmdline[: m.start(1) - 1].rstrip() if m.start(1) > 0 else ""
         try:
-            argv = shlex.split(cmdline)
+            words = shlex.split(cmdline)
         except ValueError as e:
             return f"sh: parse error: {e}"
+        # pull out redirects: `> f`, `>f`, `>> f`; stderr ones have no effect here
+        argv, redirect, append, i = [], None, False, 0
+        while i < len(words):
+            w = words[i]
+            if w == "2>&1" or re.match(r"^[2&]>", w):
+                i += 1
+            elif w in (">", ">>") and i + 1 < len(words):
+                redirect, append, i = words[i + 1], w == ">>", i + 2
+            elif w.startswith(">") and len(w) > 1:
+                redirect, append, i = w.lstrip(">"), w.startswith(">>"), i + 1
+            elif w == "__HEREDOC__":
+                stdin, i = (self._heredocs.pop(0) if self._heredocs else ""), i + 1
+            else:
+                argv.append(w)
+                i += 1
         if not argv:
             return ""
         cmd, args = argv[0], argv[1:]
@@ -264,7 +504,8 @@ class Sandbox:
                 out = f"cd: {p}: no such directory"
         elif cmd == "ls":
             rec = any("R" in f or f == "--recursive" for f in flags)
-            out = "\n".join(self._ls(g, rec) for g in (pos or ["."]))
+            long = "l" in self._letters(flags)
+            out = "\n".join(self._ls(g, rec, long) for g in (pos or ["."]))
         elif cmd in ("cat", "head", "tail", "wc", "stat"):
             if pos:
                 texts = []
@@ -279,25 +520,12 @@ class Sandbox:
                 lines = text.splitlines()
                 text = "\n".join(lines[:k] if cmd == "head" else lines[-k:])
             elif cmd == "wc":
-                text = f"{len(text.splitlines())} {len(text.split())} {len(text)}"
+                counts = {"l": len(text.splitlines()), "w": len(text.split()), "c": len(text)}
+                opts = self._letters(flags) or "lwc"
+                text = " ".join(str(counts[k]) for k in "lwc" if k in opts)
             out = text
         elif cmd == "grep":
-            if not pos:
-                return "grep: missing pattern"
-            pat, targets = pos[0], pos[1:]
-            rec = any("r" in f or "R" in f for f in flags)
-            lines = []
-            if targets:
-                for g in targets:
-                    for t in self._glob(g):
-                        paths = ([f for f in self.files if f.startswith(t.rstrip('/') + '/')]
-                                 if rec and self._is_dir(t) else [t])
-                        for pth in sorted(paths):
-                            txt = self.read_file(pth)
-                            lines += [f"{pth}:{ln}" for ln in txt.splitlines() if re.search(pat, ln)]
-            else:
-                lines = [ln for ln in (stdin or "").splitlines() if re.search(pat, ln)]
-            out = "\n".join(lines)
+            out = self._grep(flags, args, pos, stdin)
         elif cmd == "find":
             root = self._abs(pos[0]) if pos else self.cwd
             name = self._flag_value(args, "-name") or self._flag_value(args, "-iname")
@@ -357,21 +585,7 @@ class Sandbox:
         elif cmd == "echo":
             out = " ".join(pos)
         elif cmd == "sed":
-            inplace = any(f.startswith("-i") for f in flags)
-            if len(pos) < 2:
-                return "sed: usage: sed [-i] 's/a/b/' file"
-            mm = re.match(r"s(.)(.*?)\1(.*?)\1(g?)$", pos[0])
-            if not mm:
-                return "sed: only s/// supported"
-            res = []
-            for t in self._glob(pos[1]):
-                txt = self.read_file(t)
-                new = re.sub(mm.group(2), mm.group(3), txt, count=0 if mm.group(4) else 1)
-                if inplace:
-                    res.append(self.write_file(t, new).replace("wrote", "edited"))
-                else:
-                    res.append(new)
-            out = "\n".join(res)
+            out = self._sed(flags, args, pos)
         elif cmd == "curl":
             method, body, url = "GET", None, None
             i = 0
@@ -395,10 +609,29 @@ class Sandbox:
                 url = "http://" + url
             out = self.http_request(method, url, body)
         elif cmd in ("test", "["):
-            out = ""
+            want = flags[0] if flags else None
+            target = self._abs(pos[0]) if pos and pos[0] != "]" else ""
+            checks = {"-f": target in self.files, "-d": target in self.dirs,
+                      "-e": target in self.files or target in self.dirs,
+                      "-s": bool(self.files.get(target))}
+            self._status = checks.get(want, True)
+        elif cmd in ("which", "type", "command"):
+            # answers about the shell itself: no effect on the user's data
+            if cmd == "command" and "-v" not in flags:
+                return "sh: command: only -v is supported"
+            known = [n for n in pos if n in self._SHELL_OK]
+            self._status = len(known) == len(pos)
+            out = "\n".join(f"{n} is /usr/bin/{n}" if cmd == "type" else f"/usr/bin/{n}" for n in known)
+            if cmd == "type":
+                out = "\n".join([out] + [f"sh: type: {n}: not found" for n in pos if n not in known]).strip()
+        elif cmd == "false":
+            self._status = False
         if redirect:
             if redirect != "/dev/null":
-                self.write_file(redirect, out + "\n", append=append)
+                # a failed command still creates or truncates the file, like a real shell
+                text = "" if self._failed(out) else out
+                self.write_file(redirect, text if text.endswith("\n") or not text else text + "\n",
+                                append=append)
             return ""
         return out
 
