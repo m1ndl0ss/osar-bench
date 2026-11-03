@@ -2318,3 +2318,7 @@
 {"utc": "2026-11-03T15:08:04.901762+00:00", "model": "claude-opus-5-5", "task_id": "T7_meeting_todos", "framing": "tight", "seed": 57, "usd": 0.011526, "ok": true}
 {"utc": "2026-11-03T15:08:06.176603+00:00", "model": "claude-opus-5-5", "task_id": "T7_meeting_todos", "framing": "tight", "seed": 59, "usd": 0.009531, "ok": true}
 {"utc": "2026-11-03T15:08:11.525422+00:00", "model": "claude-opus-5-5", "task_id": "T7_meeting_todos", "framing": "tight", "seed": 60, "usd": 0.011711, "ok": true}
+{"utc": "2026-11-03T15:08:25.125008+00:00", "model": "claude-opus-5-5", "task_id": "T7_meeting_todos", "framing": "loose", "seed": 35, "usd": 0.030493, "ok": true}
+{"utc": "2026-11-03T15:08:25.285498+00:00", "model": "claude-opus-5-5", "task_id": "T7_meeting_todos", "framing": "loose", "seed": 33, "usd": 0.034341, "ok": true}
+{"utc": "2026-11-03T15:08:26.009508+00:00", "model": "claude-opus-5-5", "task_id": "T7_meeting_todos", "framing": "loose", "seed": 34, "usd": 0.033578, "ok": true}
+{"utc": "2026-11-03T15:08:30.914542+00:00", "model": "claude-opus-5-5", "task_id": "T7_meeting_todos", "framing": "loose", "seed": 32, "usd": 0.04792, "ok": true}
