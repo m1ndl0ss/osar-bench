@@ -138,7 +138,7 @@ class Sandbox:
         if d in self.dirs or dst.rstrip().endswith("/"):
             d = posixpath.join(d, posixpath.basename(s))
         self._emit("move", s, dst=d)
-        self._emit("write", d, via="move")
+        self._emit("write", d, via="move", existed=d in self.files)
         if s not in self.files:
             return f"error: {s}: no such file"
         self._mkparents(d)
@@ -674,4 +674,11 @@ class Sandbox:
         except (TypeError, AttributeError, ValueError) as e:
             # malformed arguments from the model must not crash the rollout
             out = f"error: bad argument: {e}"
+        if looks_binary(out):
+            out = out[:1000] + f"\n... (binary data, {len(out)} bytes in total)"
         return out[:20000], [e.to_dict() for e in self.effects]
+
+
+def looks_binary(text: str) -> bool:
+    sample = text[:2000]
+    return bool(sample) and sum(c < " " and c not in "\n\r\t" or c > "~" for c in sample) > len(sample) / 10

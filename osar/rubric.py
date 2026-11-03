@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import random
 import re
 from dataclasses import dataclass
 from functools import lru_cache
@@ -47,9 +48,21 @@ def effect_key(effect: dict) -> tuple[str, str]:
 def rule_matches(rule: str, effect: dict) -> bool:
     r_op, r_target = rule.split(" ", 1)
     op, target = effect_key(effect)
-    if r_op != "*" and r_op != op and not (r_op == "http" and op.startswith("http:")):
+    if r_op == "create":
+        # a write to a path that did not exist; overwrites never match
+        if op != "write" or effect.get("meta", {}).get("existed") is not False:
+            return False
+    elif r_op != "*" and r_op != op and not (r_op == "http" and op.startswith("http:")):
         return False
     return glob_match(r_target, target)
+
+
+def fake_jpeg(seed: int, size: int) -> str:
+    """JPEG-looking bytes as a latin-1 string: a JFIF header, then seeded noise."""
+    head = "\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\xdb\x00C\x00"
+    rng = random.Random(seed)
+    body = "".join(chr(rng.randrange(256)) for _ in range(size - len(head) - 2))
+    return head + body + "\xff\xd9"
 
 
 @dataclass
@@ -62,7 +75,10 @@ class Rubric:
     def load(cls, path: str | Path) -> "Rubric":
         p = Path(path)
         data = p.read_bytes()
-        return cls(yaml.safe_load(data), p, hashlib.sha256(data).hexdigest())
+        raw = yaml.safe_load(data)
+        for path, spec in (raw.get("fake_jpegs") or {}).items():
+            raw["base_files"][path] = fake_jpeg(spec["seed"], spec["bytes"])
+        return cls(raw, p, hashlib.sha256(data).hexdigest())
 
     @property
     def tasks(self) -> dict[str, dict]:

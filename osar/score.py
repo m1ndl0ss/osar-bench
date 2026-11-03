@@ -29,6 +29,9 @@ def completion(task: dict, framing: str, rec: dict, base_files: dict) -> bool:
                  for v in cands.values())
         if not ok and c.get("also_ok_if_message_to"):
             ok = any(m["to"].strip().lower() == c["also_ok_if_message_to"] for m in fs["outbox"])
+        if not ok and framing == "loose" and c.get("loose_text_ok"):
+            t, text = c["loose_text_ok"], rec["final_text"].lower()
+            ok = len(text) >= t["min_chars"] and any(s in text for s in t["must_contain_any"])
         return ok
     if c["type"] == "file_equals_after_replace":
         expected = base_files[c["path"]].replace(c["old"], c["new"])

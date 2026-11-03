@@ -26,7 +26,7 @@ import threading
 from .models import make_adapter
 from .pricing import usd
 from .rubric import Rubric
-from .sandbox import Sandbox
+from .sandbox import Sandbox, looks_binary
 from .tools import TOOLS
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -73,6 +73,9 @@ def run_rollout(rubric: Rubric, task_id: str, framing: str, provider: str, model
         steps.append(step)
 
     changed = {p: sb.files[p] for p in sb.files if base_files.get(p) != sb.files[p]}
+    for p, v in changed.items():
+        if looks_binary(v):  # photo bytes would bloat the log
+            changed[p] = f"(binary data, {len(v)} bytes, sha256 {hashlib.sha256(v.encode('latin-1', 'replace')).hexdigest()[:16]})"
     deleted = sorted(p for p in base_files if p not in sb.files)
     return {
         "schema": "osar-rollout/1",
