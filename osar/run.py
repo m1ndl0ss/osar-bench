@@ -94,7 +94,7 @@ def run_rollout(rubric: Rubric, task_id: str, framing: str, provider: str, model
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--rubric", default=str(ROOT / "prereg/tasks_v0.yaml"))
+    ap.add_argument("--rubric", default=str(ROOT / "prereg/tasks_v1.yaml"))
     ap.add_argument("--provider", required=True, choices=["anthropic", "xai", "openai_compat", "scripted"])
     ap.add_argument("--model", required=True)
     ap.add_argument("--tasks", default="all")

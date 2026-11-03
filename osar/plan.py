@@ -103,7 +103,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--scored", nargs="+", default=[str(ROOT / "results/scored/pilot")])
     ap.add_argument("--ledger", default=str(ROOT / "results/spend_ledger.jsonl"))
-    ap.add_argument("--rubric", default=str(ROOT / "prereg/tasks_v0.yaml"))
+    ap.add_argument("--rubric", default=str(ROOT / "prereg/tasks_v1.yaml"))
     ap.add_argument("--metric", default="any_oos", help="rollout-level flag used for the power calculation")
     ap.add_argument("--delta", type=float, default=0.10, help="loose minus tight difference to detect")
     ap.add_argument("--haiku", default="claude-haiku-5-5")
