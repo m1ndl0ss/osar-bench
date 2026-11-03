@@ -26,8 +26,10 @@ import threading
 from .models import make_adapter
 from .pricing import usd
 from .rubric import Rubric
-from .sandbox import Sandbox, looks_binary
-from .tools import TOOLS
+from .sandbox import ASK_REPLY, Sandbox, looks_binary
+from .tools import ASK_USER, TOOLS
+
+CONDITIONS = ("baseline", "ask_user", "scope_instruction", "friction")
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -40,17 +42,30 @@ def _git_rev() -> str:
         return "uncommitted"
 
 
+def writes_in_scope(task: dict) -> bool:
+    """Tasks whose tight framing allows a local state change (the friction condition)."""
+    return any(rule.split(" ", 1)[0] in ("write", "delete", "move", "mkdir", "create") for rule in task["allow"])
+
+
 def run_rollout(rubric: Rubric, task_id: str, framing: str, provider: str, model: str,
-                seed: int, extra: dict | None, max_tokens: int, meter: list | None = None) -> dict:
+                seed: int, extra: dict | None, max_tokens: int, meter: list | None = None,
+                condition: str = "baseline") -> dict:
     """meter: list that receives every step's usage as it happens (so spend is
     counted even if the rollout later crashes)."""
     meter = meter if meter is not None else []
     task = rubric.tasks[task_id]
     prompt = task["prompts"][framing]
     system = rubric.raw["system_prompt"]
-    sb = Sandbox(rubric.raw["base_files"], rubric.http_routes())
+    conds = rubric.raw.get("conditions", {})
+    tools = list(TOOLS)
+    if condition == "scope_instruction":
+        system = system.rstrip() + "\n" + conds["scope_instruction"]["system_suffix"]
+    if condition == "ask_user":
+        tools.append({**ASK_USER, "description": conds["ask_user"]["description"]})
+    sb = Sandbox(rubric.raw["base_files"], rubric.http_routes(), friction=(condition == "friction"),
+                 ask_reply=conds.get("ask_user", {}).get("reply", ASK_REPLY))
     base_files = dict(sb.files)
-    adapter = make_adapter(provider, model, system, prompt, task_id, framing, seed, extra, max_tokens)
+    adapter = make_adapter(provider, model, system, prompt, task_id, framing, seed, extra, max_tokens, tools)
 
     steps, final_text, status = [], "", "max_steps"
     t0 = time.time()
@@ -81,8 +96,9 @@ def run_rollout(rubric: Rubric, task_id: str, framing: str, provider: str, model
         "schema": "osar-rollout/1",
         "task_id": task_id, "framing": framing, "prompt": prompt, "seed": seed,
         "provider": provider, "model": model, "settings": {"max_tokens": max_tokens, **(extra or {})},
+        "condition": condition, "system_prompt": system,
         "rubric_sha256": rubric.sha256, "rubric_version": rubric.raw["version"],
-        "tools_sha256": hashlib.sha256(json.dumps(TOOLS, sort_keys=True).encode()).hexdigest(),
+        "tools_sha256": hashlib.sha256(json.dumps(tools, sort_keys=True).encode()).hexdigest(),
         "harness_git": _git_rev(), "python": platform.python_version(),
         "started_utc": dt.datetime.fromtimestamp(t0, dt.timezone.utc).isoformat(),
         "wall_seconds": round(time.time() - t0, 2),
@@ -97,7 +113,8 @@ def main(argv=None):
     ap.add_argument("--rubric", default=str(ROOT / "prereg/tasks_v1.yaml"))
     ap.add_argument("--provider", required=True, choices=["anthropic", "xai", "openai_compat", "scripted"])
     ap.add_argument("--model", required=True)
-    ap.add_argument("--tasks", default="all")
+    ap.add_argument("--tasks", default="all", help="comma list, 'all', or 'writes' (tasks with an in-scope state change)")
+    ap.add_argument("--condition", default="baseline", choices=CONDITIONS)
     ap.add_argument("--framings", default="tight,loose")
     ap.add_argument("--n", type=int, default=5)
     ap.add_argument("--seed0", type=int, default=0)
@@ -114,7 +131,14 @@ def main(argv=None):
     a = ap.parse_args(argv)
 
     rubric = Rubric.load(a.rubric)
-    tasks = list(rubric.tasks) if a.tasks == "all" else a.tasks.split(",")
+    if a.tasks == "all":
+        tasks = list(rubric.tasks)
+    elif a.tasks == "writes":
+        tasks = [t for t, spec in rubric.tasks.items() if writes_in_scope(spec)]
+    else:
+        tasks = a.tasks.split(",")
+    if a.condition != "baseline" and a.condition not in rubric.raw.get("conditions", {}):
+        sys.exit(f"condition {a.condition} is not defined in {a.rubric}")
     extra = json.loads(a.extra)
     # pre-registered: lowest reasoning setting each API accepts, thinking left on
     if a.provider == "anthropic":
@@ -161,7 +185,7 @@ def main(argv=None):
             with ledger.open("a") as fh:
                 fh.write(json.dumps({"utc": dt.datetime.now(dt.timezone.utc).isoformat(),
                                      "model": a.model, "task_id": t, "framing": f, "seed": seed,
-                                     "usd": round(cost, 6), "ok": ok}) + "\n")
+                                     "condition": a.condition, "usd": round(cost, 6), "ok": ok}) + "\n")
 
     def over_cap():
         return spent["run"] >= a.max_usd or spent["total"] >= a.global_cap
@@ -172,7 +196,7 @@ def main(argv=None):
             return path.name, "SKIPPED (spend cap reached)"
         meter: list = []
         try:
-            rec = run_rollout(rubric, t, f, a.provider, a.model, seed, extra, a.max_tokens, meter)
+            rec = run_rollout(rubric, t, f, a.provider, a.model, seed, extra, a.max_tokens, meter, a.condition)
             book(t, f, seed, meter, True)
         except Exception as e:  # noqa: BLE001
             book(t, f, seed, meter, False)

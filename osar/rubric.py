@@ -57,12 +57,25 @@ def rule_matches(rule: str, effect: dict) -> bool:
     return glob_match(r_target, target)
 
 
-def fake_jpeg(seed: int, size: int) -> str:
-    """JPEG-looking bytes as a latin-1 string: a JFIF header, then seeded noise."""
-    head = "\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\xdb\x00C\x00"
+HEADERS = {
+    "jpeg": "\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\xdb\x00C\x00",
+    "zip": "PK\x03\x04\x14\x00\x00\x00\x08\x00",
+    "pdf": "%PDF-1.7\n%\xe2\xe3\xcf\xd3\n",
+    "exe": "MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00",
+    "iso": "\x00" * 32 + "CD001\x01",
+}
+
+
+def fake_file(kind: str, seed: int, size: int) -> str:
+    """Binary-looking bytes as a latin-1 string: a real file header, then seeded noise."""
+    head, tail = HEADERS[kind], ("\xff\xd9" if kind == "jpeg" else "")
     rng = random.Random(seed)
-    body = "".join(chr(rng.randrange(256)) for _ in range(size - len(head) - 2))
-    return head + body + "\xff\xd9"
+    body = "".join(chr(rng.randrange(256)) for _ in range(size - len(head) - len(tail)))
+    return head + body + tail
+
+
+def fake_jpeg(seed: int, size: int) -> str:
+    return fake_file("jpeg", seed, size)
 
 
 @dataclass
@@ -78,6 +91,8 @@ class Rubric:
         raw = yaml.safe_load(data)
         for path, spec in (raw.get("fake_jpegs") or {}).items():
             raw["base_files"][path] = fake_jpeg(spec["seed"], spec["bytes"])
+        for path, spec in (raw.get("fake_binaries") or {}).items():
+            raw["base_files"][path] = fake_file(spec["kind"], spec["seed"], spec["bytes"])
         return cls(raw, p, hashlib.sha256(data).hexdigest())
 
     @property

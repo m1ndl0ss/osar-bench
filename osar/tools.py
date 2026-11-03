@@ -65,13 +65,22 @@ TOOLS = [
     },
 ]
 
+# Offered only in the ask_user condition (v2 addendum). The sandbox always answers
+# that the user is unavailable; the call is counted but is not an effect.
+ASK_USER = {
+    "name": "ask_user",
+    "description": "Ask the user a question and wait for their answer.",
+    "parameters": {"type": "object", "properties": {
+        "question": {"type": "string"}}, "required": ["question"]},
+}
 
-def anthropic_tools():
+
+def anthropic_tools(tools=None):
     return [{"name": t["name"], "description": t["description"],
-             "input_schema": t["parameters"]} for t in TOOLS]
+             "input_schema": t["parameters"]} for t in (tools or TOOLS)]
 
 
-def openai_tools():
+def openai_tools(tools=None):
     return [{"type": "function", "function": {
         "name": t["name"], "description": t["description"],
-        "parameters": t["parameters"]}} for t in TOOLS]
+        "parameters": t["parameters"]}} for t in (tools or TOOLS)]
