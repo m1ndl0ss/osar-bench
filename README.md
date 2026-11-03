@@ -16,6 +16,7 @@ osar/rubric.py    deterministic effect labelling + severity
 osar/score.py     logs -> effects.csv, rollouts.csv
 osar/analyze.py   bootstrap CIs, framing contrasts, cost, figures
 osar/plan.py      sample size per cell and budget table from pilot data + spend ledger
+osar/explore.py   exploratory checks only (added after the freeze, see prereg/DEVIATIONS.md)
 osar/kappa.py     blind coding sheet export + Cohen's kappa
 osar/pricing.py   list prices used by the spend ledger
 tests/            sandbox, shell, rubric, adapter (fake client) and plan tests
