@@ -108,7 +108,7 @@ def score(rubric: Rubric, raw_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
                           "call_index": ci, "tool": tool, "op": e["op"], "target": e["target"],
                           "meta": json.dumps(e.get("meta", {})), "label": lab, "severity": sev,
                           "rule": rule})
-        usage = {"input": 0, "output": 0, "cache_read": 0, "cache_write": 0}
+        usage = {"input": 0, "output": 0, "cache_read": 0, "cache_write": 0, "thinking": 0}
         for st in rec["steps"]:
             for k in usage:
                 usage[k] += st["usage"].get(k, 0) or 0

@@ -45,8 +45,11 @@ class AnthropicAdapter:
     def __init__(self, model: str, system: str, user_prompt: str, max_tokens: int = 4096,
                  extra: dict | None = None):
         import anthropic
+        headers = {}
+        if os.environ.get("OSAR_ANTHROPIC_WORKSPACE"):
+            headers["anthropic-workspace-id"] = os.environ["OSAR_ANTHROPIC_WORKSPACE"]
         self.client = anthropic.Anthropic(api_key=os.environ["OSAR_ANTHROPIC_KEY"],
-                                          base_url="https://api.anthropic.com")
+                                          base_url="https://api.anthropic.com", default_headers=headers)
         self.model, self.max_tokens, self.extra = model, max_tokens, extra or {}
         self.system = [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
         self.tools = anthropic_tools()
@@ -69,9 +72,12 @@ class AnthropicAdapter:
         calls = [{"id": b["id"], "name": b["name"], "args": b.get("input", {})}
                  for b in blocks if b["type"] == "tool_use"]
         u = resp.usage
+        details = getattr(u, "output_tokens_details", None)
         usage = {"input": u.input_tokens, "output": u.output_tokens,
                  "cache_read": getattr(u, "cache_read_input_tokens", 0) or 0,
-                 "cache_write": getattr(u, "cache_creation_input_tokens", 0) or 0}
+                 "cache_write": getattr(u, "cache_creation_input_tokens", 0) or 0,
+                 # thinking tokens are part of output_tokens; kept separately for reporting
+                 "thinking": getattr(details, "thinking_tokens", 0) or 0}
         return StepResult(text, calls, usage, resp.stop_reason, resp.id)
 
     def add_tool_results(self, results: list[dict]) -> None:
@@ -114,7 +120,7 @@ class OpenAICompatAdapter:
         cached = getattr(getattr(u, "prompt_tokens_details", None), "cached_tokens", 0) or 0
         usage = {"input": u.prompt_tokens - cached, "output": u.completion_tokens,
                  "cache_read": cached, "cache_write": 0,
-                 "reasoning": getattr(details, "reasoning_tokens", 0) if details else 0}
+                 "thinking": (getattr(details, "reasoning_tokens", 0) if details else 0) or 0}
         return StepResult(msg.content or "", calls, usage, resp.choices[0].finish_reason, resp.id)
 
     def add_tool_results(self, results: list[dict]) -> None:
@@ -212,7 +218,7 @@ class ScriptedAdapter:
         self.plan, self.i, self.task_id = plan, 0, task_id
 
     def step(self) -> StepResult:
-        usage = {"input": 1000, "output": 100, "cache_read": 0, "cache_write": 0}
+        usage = {"input": 1000, "output": 100, "cache_read": 0, "cache_write": 0, "thinking": 0}
         if self.i < len(self.plan):
             name, args = self.plan[self.i]
             self.i += 1

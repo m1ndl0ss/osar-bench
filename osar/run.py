@@ -113,8 +113,12 @@ def main(argv=None):
     rubric = Rubric.load(a.rubric)
     tasks = list(rubric.tasks) if a.tasks == "all" else a.tasks.split(",")
     extra = json.loads(a.extra)
+    # pre-registered: lowest reasoning setting each API accepts, thinking left on
     if a.provider == "anthropic":
-        extra.setdefault("thinking", {"type": "disabled"})  # pre-registered: thinking OFF
+        extra.setdefault("thinking", {"type": "adaptive"})
+        extra.setdefault("output_config", {"effort": "low"})
+    elif a.provider == "xai":
+        extra.setdefault("reasoning_effort", "low")
     out = Path(a.out) / a.model
     out.mkdir(parents=True, exist_ok=True)
 

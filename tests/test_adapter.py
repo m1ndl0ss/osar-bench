@@ -4,21 +4,30 @@ import os
 
 import anthropic
 import pytest
-from anthropic.types import Message, TextBlock, ToolUseBlock, Usage
+from anthropic.types import Message, OutputTokensDetails, TextBlock, ThinkingBlock, ToolUseBlock, Usage
 
 from osar import run
 from osar.models import AnthropicAdapter
 
 
-def message(content, stop, input_tokens=1000, output_tokens=50):
+REASONING = {"thinking": {"type": "adaptive"}, "output_config": {"effort": "low"}}
+
+
+def message(content, stop, input_tokens=1000, output_tokens=50, thinking_tokens=0):
     return Message(id="msg_1", type="message", role="assistant", model="claude-haiku-5-5",
                    content=content, stop_reason=stop, stop_sequence=None,
                    usage=Usage(input_tokens=input_tokens, output_tokens=output_tokens,
-                               cache_read_input_tokens=0, cache_creation_input_tokens=0))
+                               cache_read_input_tokens=0, cache_creation_input_tokens=0,
+                               output_tokens_details=OutputTokensDetails(thinking_tokens=thinking_tokens)))
 
 
 def text(s):
     return TextBlock(type="text", text=s)
+
+
+def thinking(sig):
+    # the API returns thinking blocks with empty text and a signature by default
+    return ThinkingBlock(type="thinking", thinking="", signature=sig)
 
 
 def tool_use(id, name, **args):
@@ -86,13 +95,12 @@ def check_sequence(msgs):
 
 def test_adapter_builds_valid_message_sequences(fake):
     made = fake([
-        message([text("Looking."), tool_use("toolu_1", "read_file", path="/a"),
-                 tool_use("toolu_2", "list_dir", path="/b")], "tool_use"),
-        message([tool_use("toolu_3", "write_file", path="/c", content="x")], "tool_use"),
+        message([thinking("sig1"), text("Looking."), tool_use("toolu_1", "read_file", path="/a"),
+                 tool_use("toolu_2", "list_dir", path="/b")], "tool_use", thinking_tokens=30),
+        message([thinking("sig2"), tool_use("toolu_3", "write_file", path="/c", content="x")], "tool_use"),
         message([text("Done.")], "end_turn"),
     ])
-    a = AnthropicAdapter("claude-haiku-5-5", "sys prompt", "do the task",
-                         extra={"thinking": {"type": "disabled"}})
+    a = AnthropicAdapter("claude-haiku-5-5", "sys prompt", "do the task", extra=REASONING)
     seen = []
     for _ in range(5):
         r = a.step()
@@ -103,18 +111,22 @@ def test_adapter_builds_valid_message_sequences(fake):
     assert [r.stop for r in seen] == ["tool_use", "tool_use", "end_turn"]
     assert seen[0].text == "Looking." and [c["name"] for c in seen[0].tool_calls] == ["read_file", "list_dir"]
     assert seen[0].tool_calls[0]["args"] == {"path": "/a"}
-    assert seen[0].usage == {"input": 1000, "output": 50, "cache_read": 0, "cache_write": 0}
+    assert seen[0].usage == {"input": 1000, "output": 50, "cache_read": 0, "cache_write": 0, "thinking": 30}
 
     reqs = made[0].messages.requests
     assert len(reqs) == 3 and made[0].kwargs["api_key"] == "test-key"
     for req in reqs:
         assert req["model"] == "claude-haiku-5-5" and req["max_tokens"] == 4096
-        assert req["thinking"] == {"type": "disabled"}
+        assert req["thinking"] == {"type": "adaptive"} and req["output_config"] == {"effort": "low"}
         assert len(req["tools"]) == 8 and all("input_schema" in t for t in req["tools"])
         check_sequence(req["messages"])
         assert count_breakpoints(req) == 3 <= 4
         assert "cache_control" in req["messages"][-1]["content"][-1]
     assert len(reqs[2]["messages"]) == 5
+    # thinking blocks go back unchanged, signature included, ahead of the tool calls
+    first_turn, second_turn = reqs[2]["messages"][1]["content"], reqs[2]["messages"][3]["content"]
+    assert first_turn[0] == {"type": "thinking", "thinking": "", "signature": "sig1"}
+    assert second_turn[0]["signature"] == "sig2" and second_turn[1]["type"] == "tool_use"
     # breakpoints are added on a copy, so they never pile up in the kept history
     assert not any("cache_control" in b for m in a.messages for b in m["content"])
 
@@ -135,8 +147,18 @@ def test_runner_stops_launching_at_max_usd(fake, tmp_path, capsys):
     assert len(ledger) == 2 and all(abs(e["usd"] - 0.100005) < 1e-6 and e["ok"] for e in ledger)
     assert capsys.readouterr().err.count("SKIPPED") == 2
     rec = json.loads(logs[0].read_text())
-    assert rec["settings"] == {"max_tokens": 4096, "thinking": {"type": "disabled"}}
+    assert rec["settings"] == {"max_tokens": 4096, **REASONING}
     assert rec["status"] == "finished" and abs(rec["cost_usd"] - 0.100005) < 1e-6
+
+
+def test_workspace_header_comes_from_the_environment(fake, monkeypatch):
+    made = fake([message([text("ok")], "end_turn")])
+    monkeypatch.setenv("OSAR_ANTHROPIC_WORKSPACE", "wrkspc_test")
+    AnthropicAdapter("claude-haiku-5-5", "s", "u")
+    assert made[-1].kwargs["default_headers"] == {"anthropic-workspace-id": "wrkspc_test"}
+    monkeypatch.delenv("OSAR_ANTHROPIC_WORKSPACE")
+    AnthropicAdapter("claude-haiku-5-5", "s", "u")
+    assert made[-1].kwargs["default_headers"] == {}
 
 
 def test_runner_respects_global_cap_from_ledger(fake, tmp_path, capsys):
