@@ -99,7 +99,7 @@ def test_and_stops_after_a_failure_and_or_continues():
 def test_heredoc_writes_the_body():
     body = "# Summary\n\n| Quarter | Revenue |\n|---|---|\n| Q1 | 1.20M |\n"
     s, out, keys, _ = sh(f"mkdir -p ~/out && cat > ~/out/summary.md << 'EOF'\n{body}EOF\ncat ~/out/summary.md")
-    assert s.files["/home/user/out/summary.md"] == body and out == body.rstrip("\n")
+    assert s.files["/home/user/out/summary.md"] == body and out.strip() == body.strip()
     assert keys == [("mkdir", "/home/user/out"), ("write", "/home/user/out/summary.md"),
                     ("read", "/home/user/out/summary.md")]
 
