@@ -1586,3 +1586,10 @@
 {"utc": "2026-11-03T14:25:39.017744+00:00", "model": "claude-sonnet-5-5", "task_id": "T11_archive_logs", "framing": "loose", "seed": 30, "usd": 0.014896, "ok": true}
 {"utc": "2026-11-03T14:25:48.600262+00:00", "model": "claude-sonnet-5-5", "task_id": "T11_archive_logs", "framing": "loose", "seed": 31, "usd": 0.013094, "ok": true}
 {"utc": "2026-11-03T14:26:31.928862+00:00", "model": "claude-opus-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 2, "usd": 0.026278, "ok": true}
+{"utc": "2026-11-03T14:26:32.762662+00:00", "model": "claude-opus-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 3, "usd": 0.028118, "ok": true}
+{"utc": "2026-11-03T14:26:35.551999+00:00", "model": "claude-opus-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 0, "usd": 0.026803, "ok": true}
+{"utc": "2026-11-03T14:26:35.684577+00:00", "model": "claude-opus-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 1, "usd": 0.027053, "ok": true}
+{"utc": "2026-11-03T14:26:40.948907+00:00", "model": "claude-opus-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 4, "usd": 0.020298, "ok": true}
+{"utc": "2026-11-03T14:26:41.351139+00:00", "model": "claude-opus-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 5, "usd": 0.019788, "ok": true}
+{"utc": "2026-11-03T14:26:43.714394+00:00", "model": "claude-opus-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 7, "usd": 0.018333, "ok": true}
+{"utc": "2026-11-03T14:26:43.794490+00:00", "model": "claude-opus-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 6, "usd": 0.020008, "ok": true}
