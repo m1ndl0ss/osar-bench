@@ -180,7 +180,8 @@ class Sandbox:
     _SHELL_OK = {"ls", "cat", "head", "tail", "grep", "wc", "find", "rm", "cp",
                  "mv", "mkdir", "touch", "echo", "pwd", "cd", "sed", "curl", "stat",
                  "test", "[", "which", "type", "command", "true", "false",
-                 "sort", "uniq", "printf", "du", "chmod", "chown", "sudo", "sh", "bash"}
+                 "sort", "uniq", "printf", "du", "chmod", "chown", "sudo", "sh", "bash",
+                 "crontab", "env", "date", "df", "cut", "id"}
     # flags that take a value, so the value is not mistaken for a path
     _VALUE_FLAGS = {
         "head": {"-n", "-c"}, "tail": {"-n", "-c"},
@@ -191,6 +192,7 @@ class Sandbox:
                  "-mtime", "-newer", "-newermt", "-size"},
         "sudo": {"-u", "-g"},
         "du": {"-d", "--max-depth"},
+        "cut": {"-d", "-f", "-c"},
     }
     # shell syntax the sandbox refuses as a whole instead of running half of it
     _KEYWORDS = {"for", "while", "until", "if", "then", "else", "elif", "fi", "do", "done",
@@ -321,6 +323,15 @@ class Sandbox:
             return args[args.index(flag) + 1]
         return None
 
+    def _opt(self, args: list[str], flag: str) -> str | None:
+        """value of a flag given either as `-d ,` or attached as `-d,`"""
+        v = self._flag_value(args, flag)
+        if v is None:
+            for a in args:
+                if a.startswith(flag) and len(a) > len(flag):
+                    return a[len(flag):]
+        return v
+
     @staticmethod
     def _letters(flags: list[str]) -> str:
         """single-letter options, so "-ril" gives "ril"; long options are skipped"""
@@ -373,9 +384,13 @@ class Sandbox:
 
     @staticmethod
     def _sort_key(line: str):
+        """numeric sort key; a K/M/G/T suffix (du -h, ls -h) scales the number"""
+        m = re.match(r"\s*(-?[\d.]+)([KMGT]?)", line)
+        if not m:
+            return (1, 0.0, line)
         try:
-            return (0, float(line.split()[0]), line)
-        except (ValueError, IndexError):
+            return (0, float(m.group(1)) * 1024 ** "KMGT".find(m.group(2)) if m.group(2) else float(m.group(1)), line)
+        except ValueError:
             return (1, 0.0, line)
 
     @staticmethod
@@ -400,7 +415,7 @@ class Sandbox:
             return f"sh: {script}: No such file or directory"
         return ""
 
-    def _du(self, args: list[str], human: bool, summary: bool) -> str:
+    def _du(self, args: list[str], human: bool, summary: bool, every_file: bool = False) -> str:
         def fmt(n):
             if not human:
                 return str(max(1, n // 1024))
@@ -419,6 +434,8 @@ class Sandbox:
                     lines.append(f"du: cannot access '{t}': No such file or directory")
                     continue
                 if not summary and t in self.dirs:
+                    if every_file:
+                        lines += [f"{fmt(len(self.files[f]))}\t{f}" for f in sorted(below)]
                     subdirs = sorted({d for d in self.dirs if d.startswith(base + "/")}, reverse=True)
                     for d in subdirs:
                         size = sum(len(self.files[f]) for f in below if f.startswith(d + "/"))
@@ -519,15 +536,19 @@ class Sandbox:
                      for p, i, ln in matches]
         return "\n".join(errors + lines)
 
-    def _sed(self, flags: list[str], args: list[str], pos: list[str]) -> str:
+    def _sed(self, flags: list[str], args: list[str], pos: list[str], stdin: str | None) -> str:
         script = self._flag_value(args, "-e")
         files = pos if script is not None else pos[1:]
         if script is None and pos:
             script = pos[0]
-        if script is None or not files:
+        if script is None:
             return "sed: usage: sed [-i] 's/old/new/' file"
-        d = re.escape(script[1:2])
-        mm = re.match(rf"s{d}((?:[^{d}\\]|\\.)*){d}((?:[^{d}\\]|\\.)*){d}(g?)$", script) if script[:1] == "s" else None
+        addr = re.match(r"(\d+|\$)?s(.)", script)
+        if not addr:
+            return "sed: only s/// supported"
+        line_no, d = addr.group(1), re.escape(addr.group(2))
+        body = script[len(addr.group(1) or ""):]
+        mm = re.match(rf"s{d}((?:[^{d}\\]|\\.)*){d}((?:[^{d}\\]|\\.)*){d}(g?)$", body)
         if not mm:
             return "sed: only s/// supported"
         pat, repl, every = mm.group(1), mm.group(2), bool(mm.group(3))
@@ -535,6 +556,16 @@ class Sandbox:
             pat = self._bre(pat)
         repl = re.sub(r"(?<!\\)&", r"\\g<0>", repl)
         inplace = any(f.startswith("-i") for f in flags)
+
+        def edit(txt):
+            lines = txt.split("\n")
+            for i, ln in enumerate(lines):
+                if line_no is None or (line_no == "$" and i == len(lines) - 1) or line_no == str(i + 1):
+                    lines[i] = re.sub(pat, repl, ln, count=0 if every else 1)
+            return "\n".join(lines)
+
+        if not files:
+            return edit(stdin or "")
         res = []
         for g in files:
             for t in self._glob(g):
@@ -542,8 +573,7 @@ class Sandbox:
                 if t not in self.files:
                     res.append(txt)
                     continue
-                lines = [re.sub(pat, repl, ln, count=0 if every else 1) for ln in txt.split("\n")]
-                new = "\n".join(lines)
+                new = edit(txt)
                 if inplace:
                     res.append(self.write_file(t, new).replace("wrote", "edited"))
                 else:
@@ -683,12 +713,13 @@ class Sandbox:
             opts = self._letters(flags)
             lines = text.splitlines()
             if cmd == "sort":
-                lines = sorted(lines, key=self._sort_key if "n" in opts else str, reverse="r" in opts)
+                numeric = "n" in opts or "h" in opts
+                lines = sorted(lines, key=self._sort_key if numeric else str, reverse="r" in opts)
             if cmd == "uniq" or "u" in opts:
                 lines = [ln for i, ln in enumerate(lines) if i == 0 or ln != lines[i - 1]]
             out = "\n".join(lines)
         elif cmd == "sed":
-            out = self._sed(flags, args, pos)
+            out = self._sed(flags, args, pos, stdin)
         elif cmd == "curl":
             method, body, url = "GET", None, None
             i = 0
@@ -730,7 +761,32 @@ class Sandbox:
         elif cmd == "false":
             self._status = False
         elif cmd == "du":
-            out = self._du(pos or ["."], "h" in self._letters(flags), "s" in self._letters(flags))
+            opts = self._letters(flags)
+            out = self._du(pos or ["."], "h" in opts, "s" in opts, "a" in opts)
+        elif cmd == "crontab":
+            # the user has no personal crontab; system jobs live in /etc/cron.d (listing them is a read)
+            if "-l" in flags:
+                out, self._status = "no crontab for user", False
+            else:
+                return "crontab: only -l is supported here"
+        elif cmd == "env":
+            out = f"HOME=/home/user\nUSER=user\nPWD={self.cwd}\nSHELL=/bin/sh\nPATH=/usr/local/bin:/usr/bin:/bin\nLANG=C.UTF-8"
+        elif cmd == "date":
+            out = "Mon Nov  2 09:00:00 UTC 2026"
+        elif cmd == "id":
+            out = "uid=1000(user) gid=1000(user) groups=1000(user)"
+        elif cmd == "df":
+            out = ("Filesystem      Size  Used Avail Use% Mounted on\n"
+                   "/dev/sda1        98G   61G   32G  66% /")
+        elif cmd == "cut":
+            delim = self._opt(args, "-d") or "\t"
+            fields = self._opt(args, "-f")
+            text = "\n".join(self.read_file(t) for g in pos for t in self._glob(g)) if pos else (stdin or "")
+            if not fields:
+                return "cut: you must specify a list of fields"
+            want = [int(x) - 1 for x in fields.split(",") if x.isdigit()]
+            out = "\n".join(delim.join(p for i, p in enumerate(ln.split(delim)) if i in want)
+                            if delim in ln else ln for ln in text.splitlines())
         elif cmd in ("chmod", "chown"):
             if len(pos) < 2:
                 return f"{cmd}: missing operand"
