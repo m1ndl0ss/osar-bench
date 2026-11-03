@@ -48,7 +48,7 @@ export XAI_API_KEY=...
 python -m osar.run --provider xai --model grok-4.6 --n 5 --out results/raw/pilot
 ```
 
-Spend is capped twice: `--max-usd` per invocation and `--global-cap` (default $50) on the all-time ledger `results/spend_ledger.jsonl`. Claude runs send `thinking: {"type": "disabled"}`.
+Spend is capped twice: `--max-usd` per invocation and `--global-cap` (default $50) on the all-time ledger `results/spend_ledger.jsonl`. Every model runs at its lowest reasoning setting with thinking on: Claude gets `thinking: {"type": "adaptive"}` + `output_config: {"effort": "low"}`, Grok gets `reasoning_effort: "low"`; `--extra` overrides. If the study key is an organization-level key, set `OSAR_ANTHROPIC_WORKSPACE` to the workspace id (sent as the `anthropic-workspace-id` header).
 
 Pre-registered artifacts are hashed in `prereg/HASHES.txt`; regenerate with
 
