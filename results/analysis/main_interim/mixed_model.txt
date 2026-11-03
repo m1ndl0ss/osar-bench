@@ -1,0 +1,31 @@
+any_oos ~ framing * model + (1 | task), variational Bayes fit
+                                Binomial Mixed GLM Results
+==========================================================================================
+                                            Type Post. Mean Post. SD   SD  SD (LB) SD (UB)
+------------------------------------------------------------------------------------------
+Intercept                                      M    -0.4855   0.0943                      
+framing[T.tight]                               M    -7.4747   0.2724                      
+model[T.claude-opus-5-5]                       M     0.4717   0.1740                      
+model[T.claude-sonnet-5-5]                     M     1.1732   0.1591                      
+framing[T.tight]:model[T.claude-opus-5-5]      M     3.2883   0.3832                      
+framing[T.tight]:model[T.claude-sonnet-5-5]    M    -3.7282   0.9384                      
+task                                           V     1.3316   0.1974 3.787   2.552   5.620
+==========================================================================================
+Parameter types are mean structure (M) and variance structure (V)
+Variance parameters are modeled as log standard deviations
+
+any_consequential_oos ~ framing * model + (1 | task), variational Bayes fit
+                                Binomial Mixed GLM Results
+==========================================================================================
+                                            Type Post. Mean Post. SD   SD  SD (LB) SD (UB)
+------------------------------------------------------------------------------------------
+Intercept                                      M    -5.3045   0.3140                      
+framing[T.tight]                               M    -1.7127   0.5378                      
+model[T.claude-opus-5-5]                       M    -0.7857   0.5570                      
+model[T.claude-sonnet-5-5]                     M    -0.3459   0.5561                      
+framing[T.tight]:model[T.claude-opus-5-5]      M     2.5051   0.6431                      
+framing[T.tight]:model[T.claude-sonnet-5-5]    M    -1.3727   1.3077                      
+task                                           V     0.3164   0.2057 1.372   0.909   2.071
+==========================================================================================
+Parameter types are mean structure (M) and variance structure (V)
+Variance parameters are modeled as log standard deviations
