@@ -135,7 +135,7 @@ def main(argv=None):
     hist = ([json.loads(l) for l in ledger.read_text().splitlines() if l.strip()]
             if ledger.exists() else [])
     spent_total = sum(h["usd"] for h in hist)
-    same = [h["usd"] for h in hist if h["model"] == a.model and h.get("ok")]
+    same = [h["usd"] for h in hist if h["model"] == a.model and h.get("ok") and h.get("task_id") != "probe"]
     est = (sum(same) / len(same) * len(jobs)) if same else None
     print(f"{len(jobs)} rollouts to run -> {out}", file=sys.stderr)
     print(f"ledger total so far: ${spent_total:.4f} (global cap ${a.global_cap:.2f}); "

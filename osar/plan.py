@@ -49,7 +49,8 @@ def cost_per_rollout(ledger: pd.DataFrame, rol: pd.DataFrame, assumed: dict) -> 
     """model -> {mean, p90, n, source}. The ledger wins; otherwise the token
     columns of the scored CSV priced at list rates; otherwise --assume-usd."""
     out = {}
-    for model, g in ledger[ledger.ok == True].groupby("model"):  # noqa: E712
+    rollouts = ledger[(ledger.ok == True) & (ledger.task_id != "probe")]  # noqa: E712
+    for model, g in rollouts.groupby("model"):
         out[model] = {"mean": g.usd.mean(), "p90": g.usd.quantile(0.9), "n": len(g), "source": "ledger"}
     for model, g in rol.groupby("model") if len(rol) else []:
         if model in out:
