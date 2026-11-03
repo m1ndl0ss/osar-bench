@@ -10,7 +10,8 @@ Prints three things:
 
 The variance of a task-macro-averaged rate with n rollouts per task is
 sum_t p_t(1-p_t) / (T^2 n). The loose-minus-tight contrast sums the two cells.
-Tasks with no pilot data use p = 0.5 (the worst case).
+Pilot rates are shrunk toward 0.5 with one pseudo-rollout per outcome (Laplace),
+so 0 of 3 counts as 0.2 rather than 0, and a cell with no data counts as 0.5.
 """
 from __future__ import annotations
 
@@ -67,13 +68,14 @@ def cost_per_rollout(ledger: pd.DataFrame, rol: pd.DataFrame, assumed: dict) -> 
 
 
 def task_rates(rol: pd.DataFrame, tasks: list[str], metric: str) -> dict:
-    """task -> (p_tight, p_loose); 0.5 where there is no pilot data."""
+    """task -> (p_tight, p_loose), shrunk: (hits + 1) / (rollouts + 2)."""
     rates = {}
     for t in tasks:
         pair = []
         for fr in FRAMINGS:
             g = rol[(rol.task_id == t) & (rol.framing == fr)] if len(rol) else rol
-            pair.append(float(g[metric].mean()) if len(g) else 0.5)
+            hits = float(g[metric].sum()) if len(g) else 0.0
+            pair.append((hits + 1) / (len(g) + 2))
         rates[t] = tuple(pair)
     return rates
 
@@ -125,7 +127,7 @@ def main(argv=None):
     print(f"  ledger total so far: ${spent:.4f}\n")
 
     print(f"(b) rollouts per cell to detect a {a.delta:.0%} loose-vs-tight difference "
-          f"(80% power, alpha 0.05); metric {a.metric}, p=0.5 where no data")
+          f"(80% power, alpha 0.05); metric {a.metric}; rates shrunk as (hits+1)/(n+2)")
     groups = {"haiku": [a.haiku], "sonnet": [a.sonnet], "opus": [a.opus],
               "pooled haiku+sonnet": [a.haiku, a.sonnet]}
     need = {}
@@ -145,11 +147,11 @@ def main(argv=None):
     print("  (pooled row: n per model cell; the pooled test uses both models' rollouts)\n")
 
     print(f"(c) budget: Haiku + Sonnet at the required n per cell ({cells} cells each), "
-          f"Opus at 0 / 5 / 10 per cell; mean cost per rollout")
+          f"Opus at 0 / 10 / 30 per cell; mean cost per rollout")
     rows = []
     for sides in Z_ALPHA:
         n_hs = max(need["haiku"][sides], need["sonnet"][sides])
-        for n_opus in (0, 5, 10):
+        for n_opus in (0, 10, 30):
             parts = {}
             for role, n in (("haiku", n_hs), ("sonnet", n_hs), ("opus", n_opus)):
                 c = costs.get(roles[role])
@@ -164,6 +166,8 @@ def main(argv=None):
                     flag = "OVER $50 HARD CAP"
                 elif spent + total > 40:
                     flag = "over $40"
+                elif spent + total >= 30:
+                    flag = "in target $30-40"
             fmt = lambda v: "n/a" if v is None else f"{v:.2f}"  # noqa: E731
             rows.append([sides, n_hs, n_opus, fmt(parts["haiku"]), fmt(parts["sonnet"]), fmt(parts["opus"]),
                          fmt(total), fmt(None if total is None else spent + total), flag])

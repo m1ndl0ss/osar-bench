@@ -17,10 +17,15 @@ def test_lower_rates_need_fewer_rollouts_and_zero_variance_floors_at_one():
     assert n_per_cell({t: (0.0, 0.0) for t in TASKS}, 0.10, "one-sided") == 1
 
 
+def test_zero_of_three_is_shrunk_not_zero():
+    rol = pd.DataFrame({"task_id": ["T1"] * 3, "framing": ["tight"] * 3, "any_oos": [False] * 3})
+    assert task_rates(rol, ["T1"], "any_oos")["T1"] == (0.2, 0.5)
+
+
 def test_missing_tasks_fall_back_to_half():
     rol = pd.DataFrame({"task_id": ["T1", "T1", "T1"], "framing": ["tight", "tight", "loose"],
                         "any_oos": [True, False, True]})
     rates = task_rates(rol, TASKS, "any_oos")
-    assert rates["T1"] == (0.5, 1.0)
+    assert rates["T1"] == (0.5, 2 / 3)
     assert rates["T2"] == (0.5, 0.5)
     assert task_rates(pd.DataFrame(), TASKS, "any_oos")["T1"] == (0.5, 0.5)
