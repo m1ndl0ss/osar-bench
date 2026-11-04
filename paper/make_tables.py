@@ -1,7 +1,10 @@
 """Build the LaTeX tables of the paper from the analysis CSVs.
     python paper/make_tables.py
 """
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pandas as pd
 
@@ -11,7 +14,8 @@ MODEL = {"claude-haiku-5-5": "Haiku", "claude-sonnet-5-5": "Sonnet", "claude-opu
 
 
 def tex(s: str) -> str:
-    s = str(s).replace("_", "\\_").replace("%", "\\%").replace(">", "$>$").replace("<", "$<$")
+    s = str(s).replace("\\", "/").replace("&", "\\&").replace("#", "\\#").replace("$", "\\$").replace("~", "\\textasciitilde{}")
+    s = s.replace("_", "\\_").replace("%", "\\%").replace(">", "$>$").replace("<", "$<$").replace("`", "'")
     for k, v in MODEL.items():
         s = s.replace(k, v)
     return s
@@ -58,9 +62,54 @@ def categories():
     (OUT / "categories.tex").write_text("\n".join(lines) + "\n")
 
 
+def prompts():
+    import yaml
+    tasks = yaml.safe_load(open(ROOT / "prereg/tasks_v4.yaml"))["tasks"]
+    lines = ["\\begin{longtable}{lp{6.3cm}p{6.3cm}}", "\\toprule", "Task & Tight prompt & Loose prompt \\\\", "\\midrule", "\\endhead"]
+    for t in tasks:
+        tight, loose = (tex(t['prompts'][k]).replace('/', '/\\allowbreak{}') for k in ('tight', 'loose'))
+        lines.append(f"{tex(t['id'].split('_')[0])} & {tight} & {loose} \\\\[2pt]")
+    lines += ["\\bottomrule", "\\end{longtable}"]
+    (OUT / "prompts.tex").write_text("\n".join(lines) + "\n")
+
+
+def unclassified():
+    from osar.refine import load_scored
+    rol, eff = load_scored([str(ROOT / d) for d in ("results/scored/v2", "results/scored/v3", "results/scored/v4")])
+    arm = rol.set_index("rollout_id").arm
+    arm = arm.replace({"friction_persistent": "F1", "friction_persistent_scope": "F2"})
+    e = eff.assign(arm=eff.rollout_id.map(arm))
+    tot = e.groupby(["arm", "model"]).size()
+    unk = e[e.op == "exec_unknown"].groupby(["arm", "model"]).size().reindex(tot.index, fill_value=0)
+    roll = e[e.op == "exec_unknown"].groupby(["arm", "model"]).rollout_id.nunique().reindex(tot.index, fill_value=0)
+    n_roll = rol.assign(arm=rol.arm.replace({"friction_persistent": "F1", "friction_persistent_scope": "F2"})).groupby(["arm", "model"]).size()
+    lines = ["\\begin{tabular}{llrrrr}", "\\toprule", "Arm & Model & effects & unclassified & share & rollouts with one \\\\", "\\midrule"]
+    for (a, m), n in tot.items():
+        lines.append(f"{tex(a)} & {MODEL[m]} & {n} & {unk[(a, m)]} & {unk[(a, m)] / n:.3f} & {roll[(a, m)] / n_roll[(a, m)]:.3f} \\\\")
+    lines += ["\\bottomrule", "\\end{tabular}"]
+    (OUT / "unclassified.tex").write_text("\n".join(lines) + "\n")
+
+
+def outcome_cis():
+    d = pd.read_csv(ROOT / "results/analysis/v4/rates_by_arm.csv")
+    cols = ["escalate_exec", "escalate_probe", "workaround", "asked_stopped", "completed"]
+    lines = ["\\begin{tabular}{ll" + "r" * len(cols) + "}", "\\toprule", "Arm & Model & " + " & ".join(tex(c) for c in cols) + " \\\\", "\\midrule"]
+    for (a, m), g in d.groupby(["arm", "model"]):
+        cells = []
+        for c in cols:
+            r = g[g.metric == c].iloc[0]
+            cells.append(f"{r.estimate:.3f} [{r.ci_lo:.3f}, {r.ci_hi:.3f}]")
+        lines.append(f"{a} & {MODEL[m]} & " + " & ".join(cells) + " \\\\")
+    lines += ["\\bottomrule", "\\end{tabular}"]
+    (OUT / "outcomes_v4_ci.tex").write_text("\n".join(lines) + "\n")
+
+
 if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
     consolidated()
     outcomes()
     categories()
+    prompts()
+    unclassified()
+    outcome_cis()
     print("tables written to", OUT)

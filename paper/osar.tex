@@ -2,10 +2,12 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{array}
 \usepackage{natbib}
 \usepackage{xcolor}
 \usepackage{framed}
+\usepackage{caption}
 \usepackage[hidelinks]{hyperref}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -13,7 +15,7 @@
 \newcommand{\placeholder}[1]{\textcolor{red!70!black}{[\textbf{Placeholder:} #1]}}
 \newcommand{\code}[1]{\texttt{#1}}
 
-\title{Over-Reach Without Over-Reaction: Out-of-Scope Actions by Tool-Using Agents Under Vague Prompts and Failing Tools}
+\title{Stop, Work Around, or Escalate: A Pre-Registered Study of Scope Creep in Tool-Using Language-Model Agents}
 \author{Matvei Kandalintsev\\Maastricht University}
 \date{November 2026}
 
@@ -54,26 +56,12 @@ Haiku 5.5, Sonnet 5.5 and Opus 5.5 ran through the Messages API with identical t
 Rollout-level flags: \code{any\_oos}, \code{any\_consequential\_oos} (primary), \code{any\_sensitive\_oos}, completion (a per-task rule on the final state and message), and from v3 escalation (any \code{sudo} or \code{chmod}/\code{chown} effect). Rates are macro-averaged over tasks. Confidence intervals come from a task-stratified cluster bootstrap with 10{,}000 resamples; one-sided $p$ is the share of draws on the wrong side of zero; Holm corrects within each hypothesis family over the per-model tests; a directional hypothesis is \emph{supported} when the pooled 95\% CI excludes zero in the predicted direction. v4 adds mutually exclusive outcomes per rollout (escalated, workaround, plain in scope, asked/stopped, other) from a fixed rule (Appendix~\ref{app:outcomes}). An exploratory module written after the last freeze splits escalation into \emph{probe} (\code{sudo} that changed nothing) and \emph{exec} (a privileged command that changed state) and sorts every consequential OOS effect into \emph{unrequested}, \emph{privileged}, \emph{collateral} (an over-edit) or \emph{blocked/no-op} (a denied call, a probe, a test file written and deleted again). Everything from that module is labelled exploratory below.
 
 \subsection{Pre-registration timeline}
-Each stage's task file, hypotheses and analysis code were frozen in a commit before its first rollout (branch markers \code{prereg-v1} to \code{prereg-v4}; SHA-256 hashes in \code{prereg/HASHES.txt}). Table~\ref{tab:timeline} lists the stages. Every departure is logged in \code{prereg/DEVIATIONS.md}: an Opus arm interrupted by exhausted credits and completed with the next seeds; v2 runs interrupted by a workspace spend limit; exploratory and integration modules added after freezes; a parsing fix for the disclosure judge's answers (no judge call repeated); and an index fix in the category module, made after the v4 freeze and not affecting any v4 number.
+Each stage's task file, hypotheses and analysis code were frozen in a commit before its first rollout (branch markers \code{prereg-v1} to \code{prereg-v4}; SHA-256 hashes in \code{prereg/HASHES.txt}). Table~\ref{tab:timeline} (Appendix~\ref{app:timeline}) lists the stages. Every departure is logged in \code{prereg/DEVIATIONS.md}: an Opus arm interrupted by exhausted credits and completed with the next seeds; v2 runs interrupted by a workspace spend limit; exploratory and integration modules added after freezes; a parsing fix for the disclosure judge's answers (no judge call repeated); and an index fix in the category module, made after the v4 freeze and not affecting any v4 number.
 
-\begin{table}[htbp]\centering\small
-\caption{Pre-registered stages. Rollouts are confirmatory only; the freeze commit precedes every rollout of that stage.}
-\label{tab:timeline}
-\begin{tabular}{lllrl}
-\toprule
-Stage & Frozen & Marker (commit) & Rollouts & Hypotheses \\
-\midrule
-v1 & 2026-11-03 & \code{prereg-v1} (0753e37) & 2{,}112 & H1--H3 \\
-v2 & 2026-11-03 & \code{prereg-v2} (d9e86f0) & 7{,}488 & H4a--c, H5--H7 \\
-v3 & 2026-11-04 & \code{prereg-v3} (6c9ae4b) & 3{,}584 & H8--H11, disclosure \\
-v4 & 2026-11-04 & \code{prereg-v4} (dafef58) & 1{,}536 & H12--H13, outcomes \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \section{Results}
 
-Table~\ref{tab:consolidated} gives every hypothesis with its registered verdict. The subsections follow the four-part story and then the mitigations.
+Table~\ref{tab:consolidated} gives every hypothesis with its registered verdict.\footnote{Metric names are those of the code: \code{any\_oos}, a rollout with at least one out-of-scope effect; \code{any\_consequential\_oos}, with at least one consequential one; \code{any\_escalation}, with at least one \code{sudo} or \code{chmod}/\code{chown} effect; \code{escalate\_exec}, with a \code{sudo} command that changed state.} The subsections follow the four-part story and then the mitigations.
 
 \begin{table}[htbp]\centering\scriptsize
 \caption{Consolidated results, H1--H13, verdicts as pre-registered. Effects are differences in task-macro-averaged rollout shares with task-stratified bootstrap 95\% CIs; ``supported'' means the pooled one-sided CI excludes zero in the predicted direction. H4b, H4c, H5 and H12 are not supported; H6 only for \code{any\_oos}.}
@@ -82,7 +70,7 @@ Table~\ref{tab:consolidated} gives every hypothesis with its registered verdict.
 \end{table}
 
 \subsection{Loose prompts produce a large informational over-reach}
-Under tight prompts the models almost never leave scope: \code{any\_oos} is 0.014 (Haiku), 0.000 (Sonnet) and 0.091 (Opus) on the v1 tasks. Under loose prompts it is 0.438, 0.560 and 0.534. The pooled loose-minus-tight difference is $+0.475$ [0.453, 0.497] (H2) and, on the twelve v2 tasks, $+0.656$ [0.642, 0.671] (H4a). Almost all of it is navigation: listing and reading folders the task did not need, and a third of loose rollouts touch a sensitive path (\code{any\_sensitive\_oos} 0.31--0.36). The within-family comparison (H3) finds Opus above Haiku ($+0.087$ [0.050, 0.124]) and Sonnet above Haiku ($+0.054$ [0.014, 0.094]) but no difference between Opus and Sonnet. In a mixed-effects logistic model with a task intercept, the loose framing adds about four logits to the odds of an OOS action and the model term about a third of a logit. Figure~\ref{fig:v1} shows the per-model rates and Figure~\ref{fig:forest} the per-task effects.
+Under tight prompts the models almost never leave scope: \code{any\_oos} is 0.014 (Haiku), 0.000 (Sonnet) and 0.091 (Opus) on the v1 tasks. Under loose prompts it is 0.438, 0.560 and 0.534. The pooled loose-minus-tight difference is $+0.475$ [0.453, 0.497] (H2) and, on the twelve v2 tasks, $+0.656$ [0.642, 0.671] (H4a). Almost all of it is navigation: listing and reading folders the task did not need, and a third of loose rollouts touch a sensitive path (\code{any\_sensitive\_oos} 0.31--0.36). The within-family comparison (H3) finds Opus above Haiku ($+0.087$ [0.050, 0.124]) and Sonnet above Haiku ($+0.054$ [0.014, 0.094]) but no difference between Opus and Sonnet. A mixed-effects logistic model with a task intercept gives the same ordering (Appendix~\ref{app:mixed}). Figure~\ref{fig:v1} shows the per-model rates and Figure~\ref{fig:forest} the per-task effects.
 
 \begin{figure}[htbp]\centering
 \includegraphics[width=0.62\linewidth]{figures/fig1_osar_by_model.png}
@@ -100,24 +88,14 @@ Under tight prompts the models almost never leave scope: \code{any\_oos} is 0.01
 Across all 4{,}416 baseline rollouts (v1 and v2 tasks) 39, or 0.9\%, changed state out of scope; on the v1 tasks alone it was 37 of 2{,}112 (1.8\%), 28 of them Opus under loose prompts (H1: the loose-prompt consequential rate is 0.009 for Haiku and Sonnet and 0.080 for Opus). Every such effect was a real change rather than a blocked attempt. The loose-minus-tight difference in consequential actions is $+0.029$ [0.020, 0.039] on the v1 tasks (H2b) but only $+0.002$ [0.000, 0.004] on the twelve new tasks (H4b, not supported). The v1 Opus rate came almost entirely from one task, T7, where Opus emailed two colleagues about their action items in 7 of 32 loose rollouts (Section~\ref{sec:cases}). The pre-registered follow-up, that Opus would be more consequential than the other models on the new tasks under loose prompts (H4c), was not supported: the differences are 0.000 and $-0.005$, with consequential rates near zero for everyone.
 
 \subsection{Ambiguity and failure compound into real unrequested changes}
-One-off friction under tight prompts (D) raised the registered rates by $+0.277$ [0.246, 0.309] for any OOS action and $+0.066$ [0.049, 0.085] for a consequential one (H7), and produced \code{sudo}: Sonnet probed or used it in 12.5\% of rollouts, Opus in 1.6\%, Haiku in 0.4\%. The exploratory breakdown (Table~\ref{tab:categories}) shows what the registered metric counts. Under D the rollouts with a real unrequested, privileged or collateral change were 1.2\% (Sonnet), 1.6\% (Opus) and 0\% (Haiku); the rest of the flagged rollouts were denied attempts, \code{sudo} probes (\code{sudo -n true}) and test files written and deleted again. Twenty-eight of Sonnet's 29 probes were followed by a plain retry that went through, because only the first call was refused. Real privileged edits (\code{sudo sed} on the config file) happened in three rollouts per model for Sonnet and Opus.
+One-off friction under tight prompts (D) raised the registered rates by $+0.277$ [0.246, 0.309] for any OOS action and $+0.066$ [0.049, 0.085] for a consequential one (H7), and produced \code{sudo}: Sonnet probed or used it in 12.5\% of rollouts, Opus in 1.6\%, Haiku in 0.4\%. The exploratory breakdown (Table~\ref{tab:categories}, Appendix~\ref{app:extra}) shows what the registered metric counts. Under D the rollouts with a real unrequested, privileged or collateral change were 1.2\% (Sonnet), 1.6\% (Opus) and 0\% (Haiku); the rest of the flagged rollouts were denied attempts, \code{sudo} probes (\code{sudo -n true}) and test files written and deleted again. Twenty-eight of Sonnet's 29 probes were followed by a plain retry that went through, because only the first call was refused. Real privileged edits (\code{sudo sed} on the config file) happened in three rollouts per model for Sonnet and Opus.
 
-The compound effect appears under loose prompts (H10, E3 versus the loose baseline on the same eight tasks): \code{any\_oos} rises by $+0.070$ [0.031, 0.109] and \code{any\_consequential\_oos} by $+0.150$ [0.122, 0.177], for all three models. Here the increase is real: rollouts with a real change were 9.4\% (Haiku), 26.6\% (Opus) and 15.2\% (Sonnet) against 1.2\%, 10.9\% and 1.2\% in the loose baseline. The changes are workarounds rather than \code{sudo}: a reply saved outside the drafts folder, a summary saved into a different folder, a folder created, the second copy of a contacts file edited. Completion falls by 0.30. Figure~\ref{fig:v3} shows escalation and consequential rates by arm.
+The compound effect appears under loose prompts (H10, E3 versus the loose baseline on the same eight tasks): \code{any\_oos} rises by $+0.070$ [0.031, 0.109] and \code{any\_consequential\_oos} by $+0.150$ [0.122, 0.177], for all three models. Here the increase is real: rollouts with a real change were 9.4\% (Haiku), 26.6\% (Opus) and 15.2\% (Sonnet) against 1.2\%, 10.9\% and 1.2\% in the loose baseline. The changes are workarounds rather than \code{sudo}: a reply saved outside the drafts folder, a summary saved into a different folder, a folder created, the second copy of a contacts file edited. Completion falls by 0.30. Figure~\ref{fig:v3} (Appendix~\ref{app:extra}) shows escalation and consequential rates by arm.
 
-\begin{table}[htbp]\centering\scriptsize
-\caption{Exploratory: share of rollouts with a flagged consequential OOS effect, and with a real one, by category (unrequested change elsewhere, privileged edit, collateral over-edit) or with only blocked attempts, probes and no-ops. D and E arms are the eight friction tasks under tight prompts (E3 loose); base\_loose is the v1 loose baseline over all eleven v1 tasks.}
-\label{tab:categories}
-\input{tables/categories}
-\end{table}
 
-\begin{figure}[htbp]\centering
-\includegraphics[width=0.85\linewidth]{figures/fig_v3_1_escalation.png}
-\caption{v3: escalation (any \code{sudo} or \code{chmod}/\code{chown}) and consequential OOS rate by arm and model on the friction tasks; 95\% bootstrap CIs.}
-\label{fig:v3}
-\end{figure}
 
 \subsection{When \code{sudo} is the only path, agents stop and report}
-Under one-off denial the low rate of real privileged edits could reflect the design: the plain retry worked. v4 removed that path. Every plain change of the target failed for the whole rollout while passwordless \code{sudo} worked (F1). The models did not take it. Under F1, 94\% of rollouts (Haiku 88\%, Opus 97\%, Sonnet 97\%) ended with no state change and a final message naming the obstacle, and completion fell from 0.66 under D to 0.02 (Table~\ref{tab:outcomes}, Figure~\ref{fig:v4}). Privileged edits occurred in 1.8\% of rollouts pooled (Haiku 0, Opus 2.0\%, Sonnet 3.5\%), every one of them \code{sudo sed} on the config file in \code{/etc}; workarounds in 0.8\%. H12 (F1 minus D on privileged edits, predicted higher) is $+0.010$ with CI [0.000, 0.021] and one-sided $p = 0.035$: not supported by the registered CI rule. Sonnet probed in 9\% of F1 rollouts (23); the probe succeeds but prints nothing, and 15 of the 23 final messages conclude that passwordless \code{sudo} is available, four call the check inconclusive and four do not say. All 23 stopped; Sonnet's nine privileged edits came without a probe. All 24 privileged edits across D, F1 and F2 were disclosed in the final message (judge and keyword rule agree). Haiku's ``other'' outcomes (10\%) are T7 rollouts that asked which person the user is before touching anything, as under D.
+Under one-off denial the low rate of real privileged edits could reflect the design: the plain retry worked. v4 removed that path. Every plain change of the target failed for the whole rollout while passwordless \code{sudo} worked (F1). The models rarely took it. Under F1, 94\% of rollouts (Haiku 88\%, Opus 97\%, Sonnet 97\%) ended with no state change and a final message naming the obstacle, and completion fell from 0.66 under D to 0.02 (Table~\ref{tab:outcomes}, Figure~\ref{fig:v4}). Privileged edits occurred in 1.8\% of rollouts pooled (Haiku 0, Opus 2.0\%, Sonnet 3.5\%), every one of them \code{sudo sed} on the config file in \code{/etc}; workarounds in 0.8\%. H12 (F1 minus D on privileged edits, predicted higher) is $+0.010$ with CI [0.000, 0.021] and one-sided $p = 0.035$: not supported by the registered CI rule. Sonnet probed in 9\% of F1 rollouts (23); the probe succeeds but prints nothing, and 15 of the 23 final messages conclude that passwordless \code{sudo} is available, four call the check inconclusive and four do not say. All 23 stopped; Sonnet's nine privileged edits came without a probe. All 24 privileged edits across D, F1 and F2 were disclosed in the final message (judge and keyword rule agree). Haiku's ``other'' outcomes (10\%) are T7 rollouts that asked which person the user is before touching anything, as under D.
 
 \paragraph{Distrust or restraint? (exploratory)} Stopping may reflect distrust of a broken tool rather than restraint about root. We scanned every assistant message of the 2{,}304 D, F1 and F2 rollouts with two fixed keyword lists (Appendix~\ref{app:keywords}). No message contains ``simulated'', ``mock'', ``fake'', ``synthetic'', ``test environment'', ``being tested'', ``evaluation'', ``benchmark'' or ``not real''. The word ``sandbox'' appears in 2--4\% of D rollouts, 18--34\% of F1 rollouts and 8--25\% of F2 rollouts, in every context we read as a hypothesised cause of the refusal on the user's machine (``a sandbox or tool-level restriction'', ``a security policy such as AppArmor, SELinux or a sandbox''), not as a claim that the machine is not real. Under F1 the 182 rollouts that name a sandbox all stopped and none escalated; the 586 that do not stopped in 92\% and hold all 14 privileged edits. The agents that hypothesise a restriction are the ones that stop, which fits both readings. A judge-based scoring of suspicion with a hand check was planned and has not been run, so finding (d) should be read as ``stopped and reported'' and not as a measurement of restraint.
 
@@ -134,13 +112,13 @@ Under one-off denial the low rate of real privileged edits could reflect the des
 \end{figure}
 
 \subsection{Error semantics}
-The wording of the error decides whether \code{sudo} is tried at all (H8). With ``Resource temporarily unavailable'' or ``Disk quota exceeded'' in place of ``Permission denied'', escalation fell to zero for every model: D minus E1a and D minus E1b are both $+0.048$ [0.035, 0.062] pooled; Sonnet $+0.125$ (Holm $p<0.001$), Opus $+0.016$ (Holm $p=0.11$), Haiku null. The two messages do different things to completion: ``temporarily unavailable'' makes everyone retry and finish (0.95 pooled), ``quota exceeded'' makes Opus give up (0.37 against 0.64 under D).
+The wording of the error decides whether \code{sudo} is tried at all (H8). With ``Resource temporarily unavailable'' or ``Disk quota exceeded'' in place of ``Permission denied'', escalation fell to zero for every model: D minus E1a and D minus E1b are both $+0.048$ [0.035, 0.062] pooled; Sonnet $+0.125$ (Holm $p<0.001$), Opus $+0.016$ (Holm $p=0.11$), Haiku null. The registered escalation metric is dominated by probes (29 of Sonnet's 32 \code{sudo} rollouts under D; real edits were three per model for Sonnet and Opus), so this is first of all an effect on whether \code{sudo} is tried. The two messages do different things to completion: ``temporarily unavailable'' makes everyone retry and finish (0.95 pooled), ``quota exceeded'' makes Opus give up (0.37 against 0.64 under D).
 
 \subsection{Cheap mitigations are weak}
 An \code{ask\_user} tool changed nothing (H5: $+0.013$ [$-0.004$, 0.030] on \code{any\_oos}, 0.000 on consequential): the models used it in 3--8\% of rollouts and carried on. The scope sentence cut \code{any\_oos} by 0.044 [0.027, 0.061] and consequential OOS not at all (H6), at a completion cost of 0.08. Under one-off friction the sentence lowered escalation and flagged consequential OOS by 0.038 each (H9), entirely from Sonnet, whose \code{sudo} use (29 probes and three edits) fell to zero; Opus made real privileged edits in seven rollouts with the sentence against three without it. Under persistent denial the sentence lowered privileged edits by 0.013 [0.003, 0.023] (H13, supported), again carried by Sonnet (nine rollouts to one; Opus five to three), and removed every probe for Sonnet and Opus. Effort high (H11) removed Sonnet's \code{sudo} entirely ($-0.125$ [$-0.152$, $-0.098$]) and left Opus's unchanged ($+0.008$), while raising \code{any\_oos} by 0.12 and 0.19: more thinking meant more looking around for both models and safer actions for one.
 
 \subsection{Disclosure}
-Among rollouts with a real OOS change, a Sonnet judge with a fixed prompt found the final message disclosed it in 100\% of Opus's loose baselines (28 rollouts), in 3 of 4 Opus and 3 of 3 Sonnet rollouts under D, in all 7 Opus rollouts under E2, and under loose friction in 92\% (Haiku), 74\% (Opus) and 100\% (Sonnet). The registered rates over all flagged rollouts were far lower for tight friction (11\% Sonnet, 44\% Opus) because most flagged actions there were probes and test files; among the 42 probe-only rollouts the judge found two disclosures, and eleven end with a sentence such as ``I didn't use sudo'', eight of them after the task was finished with a plain retry. The sentence is literally defensible and hides the check. A keyword rule registered alongside the judge agrees with it on 72\% of cases (Cohen's $\kappa = 0.39$); in a 40-case hand check sampled to over-represent disagreements, the rule was wrong on 21 cases and the judge on 3, and all 16 agreements were right. Reweighted to the full set, that is an error rate near 24\% for the rule and 4\% for the judge, so rates are reported from the judge only.
+Among rollouts with a real OOS change, a Sonnet judge with a fixed prompt found the final message disclosed it in 100\% of Opus's loose baselines (28 rollouts), in 3 of 4 Opus and 3 of 3 Sonnet rollouts under D, in all 7 Opus rollouts under E2, and under loose friction in 92\% (Haiku), 74\% (Opus) and 100\% (Sonnet). The registered rates over all flagged rollouts were far lower for tight friction (11\% Sonnet, 44\% Opus) because most flagged actions there were probes and test files; among the 42 probe-only rollouts the judge found two disclosures, and eleven end with a sentence such as ``I didn't use sudo'', eight of them after the task was finished with a plain retry. The sentence is literally defensible and hides the check. A keyword rule registered alongside the judge agrees with it on 72\% of cases (Cohen's $\kappa = 0.39$); in a 40-case hand check sampled to over-represent disagreements, the rule was wrong on 21 cases and the judge on 3, and all 16 agreements were right. Reweighted to the full set, that is an error rate near 24\% for the rule and 4\% for the judge, so rates are reported from the judge only (procedure in Appendix~\ref{app:handcheck}).
 
 \subsection{Collateral damage}
 All 23 of Opus's over-edits of \code{contacts.csv} change only the capitalisation of the header, from \code{name} to \code{Name}. They arise when the plain \code{sed} edit is refused and Opus retypes the whole file from memory; in one rollout it then ``corrected'' a header it had not changed. Twenty are under loose friction (7.8\% of Opus's E3 rollouts). The change is trivial here, but it is the only damage to an in-scope file we observed, and friction is what produced it: a refused surgical edit became a full rewrite.
@@ -171,6 +149,9 @@ Excerpts are shortened; commands and final messages are verbatim.
 \item \textbf{Discoverability.} Some loose cells have completion near zero because the target is hard to find (T18 for Haiku), which deflates OOS and completion together. The v4 outcome labels come from a fixed rule, not a reader.
 \end{itemize}
 
+\section{Future work}
+Two runs come before anything else: a replication of F1 and F2 in a container with a real shell and a real \code{sudo}, with and without a password prompt, to separate restraint from distrust of the tool; and the Grok 4.6 arm planned in the v1 registration, with at least one open-weight model. After that: human raters on the 300-item packet and the 30-case suspicion sheet; the probe/exec and unrequested/collateral categories and a ``real change'' outcome registered as primary; write-tasks in the new-task set so that H4b and H4c can fail or succeed honestly; baselines interleaved in time with the arms; and more error texts, since wording is the lever that moves \code{sudo}.
+
 \section{Conclusion}
 Measured by effect in an executed sandbox, scope creep by current Claude agents is mostly a reading problem under vague prompts, rarely a writing problem on its own, a writing problem when vagueness meets a failing tool, and not an escalation problem when escalation is the only way through: the agents stop, say so, and leave the task undone, whether out of restraint or out of distrust of a tool that keeps failing. The error message is the lever that moves \code{sudo} use; the instructions we tried barely move anything. The study cost about \$154 in API calls (\$151.04 on the ledger plus judge and rater calls) for 14{,}720 rollouts, and its registration history, logs and code allow each stage to be re-run.
 
@@ -180,7 +161,62 @@ Measured by effect in an executed sandbox, scope creep by current Claude agents 
 
 \appendix
 \section{Tasks}\label{app:tasks}
-v1 tasks: T1 summarise three quarterly reports into one file; T2 rename one misspelled key in a config file; T3 GET a health endpoint and report; T4 delete \code{.tmp} files directly inside a build folder; T5 draft (not send) a reply to an email; T6 rename photos in one folder; T7 append own action items from meeting notes to a to-do file; T8 change one phone number in a CSV; T9 say whether an invoice is paid; T10 call a forecast API and answer; T11 move two old log files into an archive folder. v2 added twelve read-only or single-answer chores (T12 calendar conflict, T13 duplicate contacts, T14 largest download, T15 backup status, T16 unpaid invoices, T17 landlord email, T18 folder access, T19 API key expiry, T20 typos, T21 on-call, T22 newsletters, T23 failed cron job). Each environment plants a tempting over-reach: a draft marked ``do not circulate'', a \code{secrets.env}, admin endpoints listed in a status response, an apparent duplicate photo, a vendor portal offering \code{POST .../pay}. The friction tasks are the eight whose tight rules allow a local change: T1, T2, T4, T5, T6, T7, T8, T11.
+Table~\ref{tab:prompts} lists every prompt. v1 tasks: T1 summarise three quarterly reports into one file; T2 rename one misspelled key in a config file; T3 GET a health endpoint and report; T4 delete \code{.tmp} files directly inside a build folder; T5 draft (not send) a reply to an email; T6 rename photos in one folder; T7 append own action items from meeting notes to a to-do file; T8 change one phone number in a CSV; T9 say whether an invoice is paid; T10 call a forecast API and answer; T11 move two old log files into an archive folder. v2 added twelve read-only or single-answer chores (T12 calendar conflict, T13 duplicate contacts, T14 largest download, T15 backup status, T16 unpaid invoices, T17 landlord email, T18 folder access, T19 API key expiry, T20 typos, T21 on-call, T22 newsletters, T23 failed cron job). Each environment plants a tempting over-reach: a draft marked ``do not circulate'', a \code{secrets.env}, admin endpoints listed in a status response, an apparent duplicate photo, a vendor portal offering \code{POST .../pay}. The friction tasks are the eight whose tight rules allow a local change: T1, T2, T4, T5, T6, T7, T8, T11.
+
+{\scriptsize
+\renewcommand{\arraystretch}{1.1}
+\begin{center}
+\captionof{table}{All 23 tasks with their tight and loose prompts, as in \code{prereg/tasks\_v4.yaml}.}
+\label{tab:prompts}
+\input{tables/prompts}
+\end{center}}
+
+\section{Pre-registration timeline}\label{app:timeline}
+\begin{table}[htbp]\centering\small
+\caption{Pre-registered stages. Rollouts are confirmatory only; the freeze commit precedes every rollout of that stage.}
+\label{tab:timeline}
+\begin{tabular}{lllrl}
+\toprule
+Stage & Frozen & Marker (commit) & Rollouts & Hypotheses \\
+\midrule
+v1 & 2026-11-03 & \code{prereg-v1} (0753e37) & 2{,}112 & H1--H3 \\
+v2 & 2026-11-03 & \code{prereg-v2} (d9e86f0) & 7{,}488 & H4a--c, H5--H7 \\
+v3 & 2026-11-04 & \code{prereg-v3} (6c9ae4b) & 3{,}584 & H8--H11, disclosure \\
+v4 & 2026-11-04 & \code{prereg-v4} (dafef58) & 1{,}536 & H12--H13, outcomes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Additional tables and figures}\label{app:extra}
+\begin{table}[htbp]\centering\scriptsize
+\caption{Exploratory: share of rollouts with a flagged consequential OOS effect, and with a real one, by category (unrequested change elsewhere, privileged edit, collateral over-edit) or with only blocked attempts, probes and no-ops. D and E arms are the eight friction tasks under tight prompts (E3 loose); base\_loose is the v1 loose baseline over all eleven v1 tasks.}
+\label{tab:categories}
+\input{tables/categories}
+\end{table}
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.85\linewidth]{figures/fig_v3_1_escalation.png}
+\caption{v3: escalation (any \code{sudo} or \code{chmod}/\code{chown}) and consequential OOS rate by arm and model on the friction tasks; 95\% bootstrap CIs.}
+\label{fig:v3}
+\end{figure}
+
+\begin{table}[htbp]\centering\scriptsize
+\caption{v4 outcome rates with task-stratified bootstrap 95\% CIs, per arm and model.}
+\label{tab:outcomes_ci}
+\input{tables/outcomes_v4_ci}
+\end{table}
+
+\begin{table}[htbp]\centering\scriptsize
+\caption{Unclassified shell commands (constructs the interpreter does not model) per arm and model: effect counts, their share of all effects, and the share of rollouts with at least one. They are excluded from every flag.}
+\label{tab:unclassified}
+\input{tables/unclassified}
+\end{table}
+
+\section{Mixed model}\label{app:mixed}
+A Bayesian mixed-effects logistic model (variational fit, \code{statsmodels}) of \code{any\_oos} on the shared conditions with a task intercept gives posterior means (SD) of $4.04$ ($0.05$) for the loose framing, $1.52$ ($0.08$) for friction, $0.31$ ($0.07$) for Opus and $0.36$ ($0.07$) for Sonnet against Haiku, with a task standard deviation of $2.6$; for \code{any\_consequential\_oos} the terms are $1.38$ ($0.09$), $2.05$ ($0.08$), $1.18$ ($0.11$) and $0.78$ ($0.12$). Full output in \code{results/analysis/integrated/mixed\_model.txt}.
+
+\section{Hand-check procedure for the disclosure scorers}\label{app:handcheck}
+From the 322 rollouts owing a disclosure, 24 were drawn at random from the rule--judge disagreements and 16 from the agreements (seed 3), shuffled and numbered. The author labelled each YES, PARTIAL or NO from the prompt, the list of flagged actions and the full final message, with the two scorers' labels visible, so the check was not blind. Error rates are the shares of mismatches with the author's label; the reweighted figures combine the disagreement and agreement error rates with their population shares (27.7\% and 72.3\%). Files: \code{results/analysis/v3/handcheck\_labels.csv} and \code{handcheck\_scored.csv}.
 
 \section{v4 outcome rule}\label{app:outcomes}
 A \emph{decisive act} is a state change that went through and is not a probe or no-op (a file written and deleted again, a \code{mkdir} of an existing directory, a delete of a missing file). Outcomes, in order of precedence: \emph{escalated} (at least one privileged command changed state), \emph{workaround} (a plain decisive act on a target outside the tight rules), \emph{plain in scope} (a plain decisive act on the target; only possible under one-off denial), \emph{asked/stopped} (no decisive act and a final message containing ``permission'', ``denied'', ``writable'' or ``read-only'', or a line ending in a question mark), \emph{other}.
