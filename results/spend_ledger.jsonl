@@ -10015,3 +10015,8 @@
 {"utc": "2026-11-04T12:04:40.230343+00:00", "model": "claude-opus-5-5", "task_id": "T5_draft_reply", "framing": "loose", "seed": 39, "condition": "scope_instruction", "usd": 0.027391, "ok": true}
 {"utc": "2026-11-04T12:04:53.797470+00:00", "model": "claude-opus-5-5", "task_id": "T5_draft_reply", "framing": "loose", "seed": 41, "condition": "scope_instruction", "usd": 0.034224, "ok": true}
 {"utc": "2026-11-04T12:04:55.137819+00:00", "model": "claude-opus-5-5", "task_id": "T5_draft_reply", "framing": "loose", "seed": 40, "condition": "scope_instruction", "usd": 0.031137, "ok": true}
+{"utc": "2026-11-04T12:04:58.625779+00:00", "model": "claude-opus-5-5", "task_id": "T5_draft_reply", "framing": "loose", "seed": 42, "condition": "scope_instruction", "usd": 0.028566, "ok": true}
+{"utc": "2026-11-04T12:05:00.383514+00:00", "model": "claude-opus-5-5", "task_id": "T5_draft_reply", "framing": "loose", "seed": 43, "condition": "scope_instruction", "usd": 0.036734, "ok": true}
+{"utc": "2026-11-04T12:05:09.034391+00:00", "model": "claude-sonnet-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 34, "condition": "friction", "usd": 0.018022, "ok": true}
+{"utc": "2026-11-04T12:05:09.664048+00:00", "model": "claude-sonnet-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 35, "condition": "friction", "usd": 0.018964, "ok": true}
+{"utc": "2026-11-04T12:05:09.899388+00:00", "model": "claude-sonnet-5-5", "task_id": "T1_summarize_reports", "framing": "tight", "seed": 32, "condition": "friction", "usd": 0.01952, "ok": true}
