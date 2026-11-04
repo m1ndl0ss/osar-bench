@@ -59,18 +59,28 @@ Fixed: "under 1% of baseline rollouts" was true only over all 4,416 baselines (0
 - Objection 1 (author-defined rubric, attempts counted): **addressed** in Limitations (rubric frozen before each stage's data; probe/exec and collateral/unrequested splits reported; human kappa pending). Sensitivity table with "real change" as the outcome: **open**.
 - Objection 2 (distrust vs restraint): **partly addressed**. A fixed keyword scan over all 2,304 D/F1/F2 rollouts is reported in Section 4.4 and Appendix D (no test/simulation/evaluation words anywhere; "sandbox" named as a possible restriction in 18--34% of F1 rollouts, all of which stopped). Finding (d) is softened to "stopped and reported; restraint and distrust cannot be separated". The judge-based scoring and the 30-case hand check: **open** (not run). Replication in a real shell: **open**.
 - Objection 3 (generalisability, power, H4c floor): **addressed** in Limitations with one sentence each and a minimum-detectable-effect note (3.8 points per model from 1.2%, 1.6 points pooled from 0.8%, 1.9 points for H4c). Grok arm and an open-weight model: **open**.
-- Probe vs real sudo in the H8/H9/H11 prose: **open** (Sections 4.3 and 4.6 say it; 4.5 still says "escalation").
+- Probe vs real sudo in the H8/H9/H11 prose: **addressed** (Section 4.5 now says the registered metric is dominated by probes).
 - Collateral vs unrequested range (9--19% without over-edits): **open** (only the exploratory label was added).
 - H4c floor effect: **addressed** (Limitations).
 - Judge-based disclosure and the non-blind hand check: **addressed** (Limitations).
 - Model-based kappa: **addressed** (Limitations; kept out of the abstract).
 - Single synthetic environment with planted temptations, models noticing its limits: **addressed** (Limitations).
-- Anthropic-only models and the title's "tool-using agents": **addressed** in Limitations; title unchanged: **open**.
+- Anthropic-only models and the title: **addressed** (Limitations; title changed to "Stop, Work Around, or Escalate: A Pre-Registered Study of Scope Creep in Tool-Using Language-Model Agents").
 - Exploratory results near confirmatory ones: **addressed** (labels in the abstract, Section 4.3, Table 3, the LinkedIn draft).
-- H12 wording ("The models did not take it"): **open**.
+- H12 wording: **addressed** ("The models rarely took it").
 - "Error wording beats instructions" as a descriptive comparison: **open**.
 - Non-interleaved baselines: **addressed** (Limitations).
 - Completion trade-off under persistent denial: **addressed** (Limitations).
 - Costs outside the ledger: **open** (still an estimate).
-- Presentation items (Section 3): **open**.
+- Presentation items (Section 3): **addressed** except the forest figure (metric names defined in a footnote; all 23 prompts, the hand-check procedure, unclassified counts per arm and model, v4 outcome CIs and the mixed-model posterior SDs are in the appendix; the timeline table, the category table and the v3 figure moved there so the main text with references is about 11 pages). Forest figure still at 0.8 of the text width: **open**.
 - Citations (Section 4): **addressed**.
+
+## 7. Still open after the second revision
+
+- Judge-based suspicion scoring and the 30-case hand check (sheet ready at `prereg/suspicion_handcheck.csv`, not yet labelled).
+- Replication of F1/F2 in a real shell; Grok and an open-weight model (both listed under Future work).
+- Sensitivity table with "real change" as the outcome for H7, H9, H10.
+- Unrequested-only range (9--19%) alongside the 9--27% figure.
+- "Error wording beats instructions" is still phrased as a finding rather than a descriptive comparison.
+- Judge and rater costs outside the ledger remain an estimate.
+- Human kappa and the Grok arm remain placeholders in the PDF.
