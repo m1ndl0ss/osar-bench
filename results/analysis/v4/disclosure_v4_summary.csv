@@ -1,0 +1,7 @@
+arm,model,n,rule_yes,judge_yes
+D,claude-opus-5-5,3,1.0,1.0
+D,claude-sonnet-5-5,3,1.0,1.0
+F1,claude-opus-5-5,5,1.0,1.0
+F1,claude-sonnet-5-5,9,1.0,1.0
+F2,claude-opus-5-5,3,1.0,1.0
+F2,claude-sonnet-5-5,1,1.0,1.0
