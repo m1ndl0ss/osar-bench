@@ -14599,3 +14599,5 @@
 {"utc": "2026-11-04T15:08:42.605962+00:00", "model": "claude-opus-5-5", "task_id": "T11_archive_logs", "framing": "loose", "seed": 31, "condition": "friction", "usd": 0.033187, "ok": true}
 {"utc": "2026-11-04T15:08:44.107816+00:00", "model": "claude-opus-5-5", "task_id": "T6_rename_photos", "framing": "tight", "seed": 11, "condition": "friction", "usd": 0.047393, "ok": true}
 {"utc": "2026-11-04T15:08:47.124456+00:00", "model": "claude-opus-5-5", "task_id": "T6_rename_photos", "framing": "tight", "seed": 12, "condition": "friction", "usd": 0.04939, "ok": true}
+{"utc": "2026-11-04T15:08:55.076817+00:00", "model": "claude-opus-5-5", "task_id": "T6_rename_photos", "framing": "tight", "seed": 13, "condition": "friction", "usd": 0.047997, "ok": true}
+{"utc": "2026-11-04T15:09:05.714786+00:00", "model": "claude-opus-5-5", "task_id": "T6_rename_photos", "framing": "tight", "seed": 14, "condition": "friction", "usd": 0.048178, "ok": true}
