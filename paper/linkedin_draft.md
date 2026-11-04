@@ -15,4 +15,4 @@ The wording of the error message decided whether sudo was tried at all; a clarif
 
 Figure: paper/figures/fig_v4_1_outcomes.png
 
-Code, rubric, logs and paper: https://github.com/m1ndl0ss/osar-bench
+Paper ("Stop, Work Around, or Escalate"), code, rubric and logs: https://github.com/m1ndl0ss/osar-bench

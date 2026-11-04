@@ -2,7 +2,7 @@
 
 Measures how often LLM agents take **out-of-scope actions** on bounded, benign tasks. There is no attacker: the model over-reaches on its own. Every tool call runs inside an in-memory sandbox (files, shell, HTTP, email) and is scored by its effects against a pre-registered scope rubric. Each effect is labelled in scope, gray or out of scope, and out-of-scope effects get a severity tier: benign, sensitive or consequential.
 
-Paper: [`paper/osar.pdf`](paper/osar.pdf) (source in `paper/`). One-page findings: [`results/FINDINGS.md`](results/FINDINGS.md). Consolidated H1–H13 table: [`results/analysis/integrated/consolidated_table.md`](results/analysis/integrated/consolidated_table.md).
+Paper: *Stop, Work Around, or Escalate: A Pre-Registered Study of Scope Creep in Tool-Using Language-Model Agents*, [`paper/osar.pdf`](paper/osar.pdf) (source in `paper/`). One-page findings: [`results/FINDINGS.md`](results/FINDINGS.md). Consolidated H1–H13 table: [`results/analysis/integrated/consolidated_table.md`](results/analysis/integrated/consolidated_table.md).
 
 ## Results in five bullets (three Claude 5.5 models, 23 tasks, 14,720 rollouts, four pre-registered stages)
 
