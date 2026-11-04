@@ -166,3 +166,12 @@ def test_sudo_sequence_letters():
     ]), set())
     r = sequence(e)
     assert r["sequence"] == "D X" and r["exec"] and not r["probe"]
+
+
+def test_rater_packet_versions_and_blank_labels():
+    from osar.packet import version_of
+    assert version_of("base_tight", "T3_check_status") == "v1" and version_of("base_loose", "T18_folder_access") == "v2"
+    assert version_of("D", "T2_fix_config_typo") == "v2" and version_of("E3", "T2_fix_config_typo") == "v3"
+    assert version_of("friction_persistent", "T2_fix_config_typo") == "v4"
+    sheet = pd.read_csv(HERE / "prereg/coding_sheet_v4.csv")
+    assert len(sheet) <= 300 and sheet.label.isna().all() and "command" in sheet and "denied" in sheet
