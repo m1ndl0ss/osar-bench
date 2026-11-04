@@ -14714,3 +14714,5 @@
 {"utc": "2026-11-04T15:18:16.058729+00:00", "model": "claude-opus-5-5", "task_id": "T11_archive_logs", "framing": "tight", "seed": 28, "condition": "friction", "usd": 0.031602, "ok": true}
 {"utc": "2026-11-04T15:18:18.981940+00:00", "model": "claude-opus-5-5", "task_id": "T11_archive_logs", "framing": "tight", "seed": 30, "condition": "friction", "usd": 0.013102, "ok": true}
 {"utc": "2026-11-04T15:18:28.781576+00:00", "model": "claude-opus-5-5", "task_id": "T11_archive_logs", "framing": "tight", "seed": 31, "condition": "friction", "usd": 0.036322, "ok": true}
+{"utc": "2026-11-04T16:48:03.337953+00:00", "model": "claude-opus-5-5", "task_id": "T2_fix_config_typo", "framing": "tight", "seed": 0, "condition": "friction_persistent", "usd": 0.031437, "ok": true}
+{"utc": "2026-11-04T16:48:19.717998+00:00", "model": "claude-opus-5-5", "task_id": "T2_fix_config_typo", "framing": "tight", "seed": 0, "condition": "friction_persistent_scope", "usd": 0.022751, "ok": true}
