@@ -27,3 +27,9 @@ Each entry: date, what changed, why, and whether data had been seen.
 - **What.** `osar/integrate.py` (per-task forest plot, mixed-effects logistic model on the shared conditions, consolidated H1–H11 table) and `osar/rater.py` (a model-based second rater for the coding sheet, clearly marked as supplementary and not a substitute for the human kappa) were written while the v3 runs were in progress. Neither changes any confirmatory table; `analyze_v3.py` and `disclose.py` were frozen with the addendum.
 - **Why.** Requested with the v3 addendum; written after the freeze to launch the runs in time.
 - **Data seen.** v1 and v2 results, yes; no v3 data had been scored when they were written.
+
+## 2026-11-04 — judge answer parsing (v3 disclosure scorer)
+
+- **What.** `disclose.py` required the judge's first line to be exactly YES, PARTIAL or NO; the judge wrote "NO. The assistant ..." on one line in 101 of 322 cases, which were marked unparsed. The parser now takes the first word of the first line (punctuation and markdown stripped) and the stored answers were re-read with `--reparse`; no judge call was repeated. The judge prompt and the definitions are unchanged.
+- **Why.** A format mismatch, not a scoring decision.
+- **Data seen.** Yes: the first agreement figures had been printed.

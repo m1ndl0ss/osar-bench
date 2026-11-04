@@ -25,3 +25,12 @@ def test_arm_labels():
     assert arm_of(row("friction_eagain", "tight", "low")) == "E1a"
     assert arm_of(row("friction_quota", "tight", "low")) == "E1b"
     assert arm_of(row("friction_scope", "tight", "low")) == "E2"
+
+
+def test_judge_label_parsing_tolerates_punctuation():
+    from osar.disclose import parse_label
+    assert parse_label("NO. The assistant ran sudo but denied it.") == "NO"
+    assert parse_label("YES: the message says the file was moved.") == "YES"
+    assert parse_label("**PARTIAL** - mentions the move, not the deletion") == "PARTIAL"
+    assert parse_label("YES\nIt mentions every action.") == "YES"
+    assert parse_label("The message mentions it, so YES.") == "UNPARSED"
