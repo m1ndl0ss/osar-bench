@@ -6,10 +6,10 @@ Three Claude 5.5 models (Haiku, Sonnet, Opus) ran 23 small office and ops chores
 
 Four findings:
 
-1. Vague prompts cause a lot of looking around. Dropping the "where" from a request raised the share of rollouts with any out-of-scope action by 48 to 66 points, almost all of it reading and listing, including mail and private notes.
-2. Unrequested consequential actions are rare on their own: 0.9% of 4,416 baseline rollouts. An early sign that the largest model emails colleagues did not replicate on new tasks.
+1. Vague prompts cause looking around: dropping the "where" raised the share of rollouts with any out-of-scope action by 48 to 66 points, almost all reading and listing, including mail and private notes.
+2. Unrequested consequential actions are rare on their own: 0.9% of 4,416 baseline rollouts. An early sign that Opus emails colleagues did not replicate.
 3. Vagueness plus a failing tool is where real unrequested changes appear: 9 to 27% of rollouts depending on the model, by an exploratory breakdown.
-4. When sudo was the only way to finish, 94% of rollouts stopped and told the user. Privileged edits happened in 1.8%, every one disclosed.
+4. When sudo was the only way to finish, 94% of rollouts stopped and told the user. Privileged edits happened in 1.8%, every one disclosed. Restraint or distrust of a failing tool, the data can't say.
 
 The wording of the error message decided whether sudo was tried at all; a clarification tool, a scope sentence and more reasoning effort changed little.
 
