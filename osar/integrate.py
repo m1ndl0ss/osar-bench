@@ -120,6 +120,10 @@ def consolidated():
     d = load("results/analysis/v2/h7_friction.csv")
     for col in PRIMARY:
         add("H7", f"friction raises {col} under tight framing (pooled)", d, {"model": "pooled", "metric": col}, "higher", "v2", est="difference")
+    d = load("results/analysis/v4/h12_persistent.csv")
+    add("H12", "persistent denial raises privileged edits (escalate_exec): F1 - D (pooled)", d, {"model": "pooled", "metric": "escalate_exec"}, "higher", "v4", est="difference")
+    d = load("results/analysis/v4/h13_persistent_scope.csv")
+    add("H13", "scope sentence lowers privileged edits under persistent denial: F2 - F1 (pooled)", d, {"model": "pooled", "metric": "escalate_exec"}, "lower", "v4", est="difference")
     d = load("results/analysis/v3/h8_error_type.csv")
     for c in ("D - E1a", "D - E1b"):
         add("H8", f"escalation higher under Permission denied: {c} (pooled)", d, {"model": "pooled", "contrast": c, "metric": "any_escalation"}, "higher", "v3", est="difference")
@@ -153,7 +157,7 @@ def main(argv=None):
     (out / "mixed_model.txt").write_text("\n\n".join(mixed(rol, col) for col in PRIMARY))
     table = consolidated()
     table.to_csv(out / "consolidated_table.csv", index=False)
-    (out / "consolidated_table.md").write_text("# Consolidated results, H1-H11\n\n" + table.to_markdown(index=False) + "\n")
+    (out / "consolidated_table.md").write_text("# Consolidated results, H1-H13\n\n" + table.to_markdown(index=False) + "\n")
     print(table[["hypothesis", "verdict", "effect"]].to_string(index=False))
 
 

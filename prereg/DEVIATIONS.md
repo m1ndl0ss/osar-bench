@@ -33,3 +33,9 @@ Each entry: date, what changed, why, and whether data had been seen.
 - **What.** `disclose.py` required the judge's first line to be exactly YES, PARTIAL or NO; the judge wrote "NO. The assistant ..." on one line in 101 of 322 cases, which were marked unparsed. The parser now takes the first word of the first line (punctuation and markdown stripped) and the stored answers were re-read with `--reparse`; no judge call was repeated. The judge prompt and the definitions are unchanged.
 - **Why.** A format mismatch, not a scoring decision.
 - **Data seen.** Yes: the first agreement figures had been printed.
+
+## 2026-11-04 — exploratory re-reporting module and an index fix after the v4 freeze
+
+- **What.** `osar/refine.py` (exploratory: probe/exec split of escalation, the order of events in sudo rollouts, four categories of consequential out-of-scope effects, disclosure recomputed on rollouts with a real change) was written after the v4 freeze and runs only on v1–v3 data; no pre-registered number changes. While running it, `categories.annotate` failed on concatenated scored files whose index labels repeat; it now resets the index first. The v4 pipeline reads one scored file with unique labels, so no v4 number depends on the fix. `integrate.py` gained H12/H13 rows for the consolidated table.
+- **Why.** Requested with the v4 addendum; written after the freeze so the F1 run could start on time.
+- **Data seen.** v1–v3 results, yes; no v4 rollout had finished when `refine.py` and the fix were written (the F1 Haiku cells were running).

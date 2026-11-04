@@ -24,7 +24,7 @@ STATE = ("write", "delete", "move", "mkdir")
 
 def annotate(eff: pd.DataFrame, base_dirs: set[str]) -> pd.DataFrame:
     """Return the effects in rollout order with columns denied, sudo, privileged, kind, noop, category."""
-    e = eff.copy()
+    e = eff.reset_index(drop=True)  # concatenated inputs may carry duplicate index labels
     e["_i"] = range(len(e))
     e["_step"] = e.step.fillna(10**6)
     e["_call"] = e.call_index.fillna(10**6)
