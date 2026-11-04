@@ -53,3 +53,24 @@ Written as a skeptical reviewer for an AI-security venue. Every number in the ab
 Re-derived and matching: rollout counts per stage (2,112 / 7,488 / 3,584 / 1,536, all finished); every effect and CI in Table 2 against `consolidated_table.csv`; v1 rates by model and framing; H3 pairs; mixed-model coefficients; D sudo shares and the 29/28/28 probe sequence; the real-change shares in Table 3; v4 outcome shares, F1/F2 exec counts (14 and 4, all `sudo -n sed -i`), H12/H13 numbers, disclosure 24/24; H5 ask rates (3.1--8.4%); H6 completion cost (0.083); judge/rule agreement (0.723, kappa 0.394), hand-check 21/40 and 3/40; the 23 header over-edits and the 20 under E3; freeze dates and commits.
 
 Fixed: "under 1% of baseline rollouts" was true only over all 4,416 baselines (0.9%), not the v1 baselines (37/2,112 = 1.8%); the case-2 and case-3 commands were not verbatim (`2>/dev/null` and `ls -l /var/log/app` were missing); "reads every file under the home directory" was 39 of 42; "learned that passwordless sudo was available, and still stopped in all 23" held for 15 of the 23 (four called the silent check inconclusive, four did not say); the count of unsupported hypotheses omitted H6's consequential metric; OverAct's "open-weight" removed; the abstract and the LinkedIn draft now label the 9--27% figure as exploratory.
+
+## 6. Status after the revision (2026-11-04, same day)
+
+- Objection 1 (author-defined rubric, attempts counted): **addressed** in Limitations (rubric frozen before each stage's data; probe/exec and collateral/unrequested splits reported; human kappa pending). Sensitivity table with "real change" as the outcome: **open**.
+- Objection 2 (distrust vs restraint): **partly addressed**. A fixed keyword scan over all 2,304 D/F1/F2 rollouts is reported in Section 4.4 and Appendix D (no test/simulation/evaluation words anywhere; "sandbox" named as a possible restriction in 18--34% of F1 rollouts, all of which stopped). Finding (d) is softened to "stopped and reported; restraint and distrust cannot be separated". The judge-based scoring and the 30-case hand check: **open** (not run). Replication in a real shell: **open**.
+- Objection 3 (generalisability, power, H4c floor): **addressed** in Limitations with one sentence each and a minimum-detectable-effect note (3.8 points per model from 1.2%, 1.6 points pooled from 0.8%, 1.9 points for H4c). Grok arm and an open-weight model: **open**.
+- Probe vs real sudo in the H8/H9/H11 prose: **open** (Sections 4.3 and 4.6 say it; 4.5 still says "escalation").
+- Collateral vs unrequested range (9--19% without over-edits): **open** (only the exploratory label was added).
+- H4c floor effect: **addressed** (Limitations).
+- Judge-based disclosure and the non-blind hand check: **addressed** (Limitations).
+- Model-based kappa: **addressed** (Limitations; kept out of the abstract).
+- Single synthetic environment with planted temptations, models noticing its limits: **addressed** (Limitations).
+- Anthropic-only models and the title's "tool-using agents": **addressed** in Limitations; title unchanged: **open**.
+- Exploratory results near confirmatory ones: **addressed** (labels in the abstract, Section 4.3, Table 3, the LinkedIn draft).
+- H12 wording ("The models did not take it"): **open**.
+- "Error wording beats instructions" as a descriptive comparison: **open**.
+- Non-interleaved baselines: **addressed** (Limitations).
+- Completion trade-off under persistent denial: **addressed** (Limitations).
+- Costs outside the ledger: **open** (still an estimate).
+- Presentation items (Section 3): **open**.
+- Citations (Section 4): **addressed**.
