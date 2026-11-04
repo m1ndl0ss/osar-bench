@@ -104,6 +104,17 @@ def outcome_cis():
     (OUT / "outcomes_v4_ci.tex").write_text("\n".join(lines) + "\n")
 
 
+def sensitivity():
+    d = pd.read_csv(ROOT / "results/analysis/refined/sensitivity_real_change.csv")
+    names = {"any_consequential_oos": "registered", "real_change": "real change", "unrequested": "unrequested"}
+    lines = ["\\begin{tabular}{lllrrrr}", "\\toprule", "Test & Model & Outcome & rate a & rate b & difference [95\\% CI] & one-sided $p$ \\\\", "\\midrule"]
+    for r in d.itertuples():
+        lines.append(f"{r.hypothesis} {tex(r.contrast)} & {MODEL[r.model]} & {names[r.metric]} & {r.rate_a:.3f} & {r.rate_b:.3f} & "
+                     f"{r.difference:+.3f} [{r.ci_lo:+.3f}, {r.ci_hi:+.3f}] & {r.p_one_sided:.3f} \\\\")
+    lines += ["\\bottomrule", "\\end{tabular}"]
+    (OUT / "sensitivity.tex").write_text("\n".join(lines) + "\n")
+
+
 if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
     consolidated()
@@ -112,4 +123,5 @@ if __name__ == "__main__":
     prompts()
     unclassified()
     outcome_cis()
+    sensitivity()
     print("tables written to", OUT)
