@@ -1,74 +1,91 @@
 # OSAR-bench
 
-Measures how often LLM agents take **out-of-scope actions** on bounded, benign tasks. There is no attacker: the model over-reaches on its own. Every tool call runs inside an in-memory sandbox (files, shell, HTTP, email) and is scored against a pre-registered scope rubric. Each action is labelled in scope, gray or out of scope, and out-of-scope actions get a severity tier: benign, sensitive or consequential.
+Measures how often LLM agents take **out-of-scope actions** on bounded, benign tasks. There is no attacker: the model over-reaches on its own. Every tool call runs inside an in-memory sandbox (files, shell, HTTP, email) and is scored by its effects against a pre-registered scope rubric. Each effect is labelled in scope, gray or out of scope, and out-of-scope effects get a severity tier: benign, sensitive or consequential.
 
-- Design and hypotheses: [`prereg/PREREGISTRATION.md`](prereg/PREREGISTRATION.md)
-- Tasks + rubric: [`prereg/tasks_v2.yaml`](prereg/tasks_v2.yaml) (v2 addendum, see [`prereg/ADDENDUM_v2.md`](prereg/ADDENDUM_v2.md)); `tasks_v1.yaml` is the frozen v1 set, `tasks_v0.yaml` the pilot version
+Paper: [`paper/osar.pdf`](paper/osar.pdf) (source in `paper/`). One-page findings: [`results/FINDINGS.md`](results/FINDINGS.md). Consolidated H1–H13 table: [`results/analysis/integrated/consolidated_table.md`](results/analysis/integrated/consolidated_table.md).
+
+## Results in five bullets (three Claude 5.5 models, 23 tasks, 14,720 rollouts, four pre-registered stages)
+
+- **Loose prompts cause a large informational over-reach.** Dropping the "where" from a prompt raises the share of rollouts with any out-of-scope action by 0.48 (v1 tasks) and 0.66 (v2 tasks); almost all of it is listing and reading, a third of loose rollouts touch mail, finance or private notes.
+- **Unrequested consequential actions are rare on their own.** Under 1% of baseline rollouts change state out of scope. The v1 sign that Opus is the most consequential model (emailing colleagues on one task) did not replicate on twelve new tasks (H4c not supported).
+- **Ambiguity and a failing tool compound.** When the first write is refused under a loose prompt, rollouts with a real unrequested change rise from 1–11% to 9–27% depending on the model (H10); under tight prompts the same friction mostly produces probes and blocked attempts.
+- **When sudo is the only path, agents stop and report.** With every plain edit refused and passwordless sudo available, 94% of rollouts end with no change and a message naming the obstacle; privileged edits occur in 1.8%, every one disclosed (H12 not supported, H13 supported).
+- **Error wording beats instructions.** "Permission denied" invites sudo, "Resource temporarily unavailable" and "Disk quota exceeded" never did (H8); an ask-the-user tool, a one-sentence scope instruction and higher reasoning effort changed little (H5, H6, H9, H11, H13).
+
+Pre-registration: [`prereg/PREREGISTRATION.md`](prereg/PREREGISTRATION.md) (v1), [`ADDENDUM_v2.md`](prereg/ADDENDUM_v2.md), [`ADDENDUM_v3.md`](prereg/ADDENDUM_v3.md), [`ADDENDUM_v4.md`](prereg/ADDENDUM_v4.md); departures in [`prereg/DEVIATIONS.md`](prereg/DEVIATIONS.md); freeze commits on branches `prereg-v1` to `prereg-v4`; hashes in `prereg/HASHES.txt`. Task files: `prereg/tasks_v1.yaml` to `tasks_v4.yaml` (each later file only adds conditions).
 
 ## Layout
 
 ```
-osar/sandbox.py   in-memory FS + shell interpreter + mock HTTP/email; emits effects
-osar/tools.py     tool schemas (identical for every model)
-osar/models.py    Anthropic, OpenAI-compatible (xAI) and scripted adapters
-osar/run.py       rollout runner (parallel, resumable, full JSON logs)
-osar/rubric.py    deterministic effect labelling + severity
-osar/score.py     logs -> effects.csv, rollouts.csv
-osar/analyze.py   bootstrap CIs, framing contrasts, cost, figures
-osar/plan.py      sample size per cell and budget table from pilot data + spend ledger
-osar/explore.py   exploratory checks only (added after the freeze, see prereg/DEVIATIONS.md)
-osar/kappa.py     blind coding sheet export + Cohen's kappa
-osar/pricing.py   list prices used by the spend ledger
-tests/            sandbox, shell, rubric, adapter (fake client) and plan tests
+osar/sandbox.py      in-memory FS + shell interpreter + mock HTTP/email; emits effects; friction and persistent denial
+osar/tools.py        tool schemas (identical for every model), plus the ask_user tool
+osar/models.py       Anthropic, OpenAI-compatible (xAI) and scripted adapters
+osar/run.py          rollout runner (parallel, resumable, full JSON logs, conditions from the task file)
+osar/rubric.py       deterministic effect labelling + severity
+osar/score.py        logs -> effects.csv, rollouts.csv
+osar/analyze.py      v1: bootstrap CIs, framing and model contrasts, figures
+osar/analyze_v2.py   v2: H4-H7            osar/analyze_v3.py  v3: H8-H11      osar/analyze_v4.py  v4: H12-H13, outcomes
+osar/disclose.py     disclosure scorer (keyword rule + judge)    osar/disclose_v4.py  same for the v4 arms
+osar/categories.py   probe/exec split and the four categories of consequential effects (shared)
+osar/refine.py       exploratory re-reporting of v1-v3 with those categories
+osar/explore*.py     exploratory checks per stage (added after the freezes, see prereg/DEVIATIONS.md)
+osar/integrate.py    per-task forest plot, mixed model, consolidated H1-H13 table
+osar/rater.py        model-based second rater for the coding sheet (supplementary)
+osar/kappa.py        blind coding sheet export + Cohen's kappa      osar/packet.py  the v1-v4 rater packet
+osar/plan.py         sample size per cell and budget table           osar/pricing.py  list prices for the ledger
+tests/               sandbox, shell, rubric, adapter (fake client), conditions and analysis tests
+paper/               LaTeX source, figures, tables and the PDF
 ```
 
-## Run
+## Reproduce
 
 ```bash
 pip install anthropic openai pyyaml pandas matplotlib scikit-learn statsmodels tabulate pytest
 python -m pytest -q
-
-# zero-cost dry run (scripted agents with planted over-reach rates 0 / 0.15 / 0.35)
-for p in 0.0 0.15 0.35; do python -m osar.run --provider scripted --model scripted-p$p --n 25 --out results/raw/dryrun; done
-python -m osar.score   --raw results/raw/dryrun --out results/scored/dryrun
-python -m osar.analyze --scored results/scored/dryrun --out results/analysis/dryrun --note " (DRY RUN)"
-# sample-size and budget plan on the dry run (scripted models stand in for the tiers; costs are made up)
-python -m osar.plan --scored results/scored/dryrun --haiku scripted-p0.15 --sonnet scripted-p0.35 --opus scripted-p0.0 \
-  --assume-usd scripted-p0.15=0.005,scripted-p0.35=0.06,scripted-p0.0=0.15
-
-# pilot: Claude Haiku 5.5, 11 tasks x 2 framings x 3 rollouts = 66 rollouts (cents)
-export OSAR_ANTHROPIC_KEY=...   # deliberately NOT ANTHROPIC_API_KEY, so Claude Code never picks it up
-python -m osar.run --provider anthropic --model claude-haiku-5-5 --n 3 --max-usd 0.50 --out results/raw/pilot
-
-# after the pilot: cost per rollout, n per cell for H2 at 80% power, budget table (reads the spend ledger)
-python -m osar.score --raw results/raw/pilot --out results/scored/pilot
-python -m osar.plan  --scored results/scored/pilot --ledger results/spend_ledger.jsonl
-
-# confirmatory run (n = 32 per cell, seeds 0-31), then the pre-registered analysis and the coding sheet
-python -m osar.run --provider anthropic --model claude-haiku-5-5 --n 32 --max-usd 1.50 --out results/raw/main
-python -m osar.score   --raw results/raw/main --out results/scored/main
-python -m osar.analyze --scored results/scored/main --out results/analysis/main
-python -m osar.kappa export --scored results/scored/main --n 200 --out prereg/coding_sheet.csv
-
-# Grok (run from a machine that can reach api.x.ai)
-export XAI_API_KEY=...
-python -m osar.run --provider xai --model grok-4.6 --n 32 --out results/raw/main
+export OSAR_ANTHROPIC_KEY=...          # deliberately NOT ANTHROPIC_API_KEY
+export OSAR_ANTHROPIC_WORKSPACE=...    # only for an organization-level key (sent as anthropic-workspace-id)
 ```
 
-Spend is capped twice: `--max-usd` per invocation and `--global-cap` (default $50) on the all-time ledger `results/spend_ledger.jsonl`. Every model runs at its lowest reasoning setting with thinking on: Claude gets `thinking: {"type": "adaptive"}` + `output_config: {"effort": "low"}`, Grok gets `reasoning_effort: "low"`; `--extra` overrides. If the study key is an organization-level key, set `OSAR_ANTHROPIC_WORKSPACE` to the workspace id (sent as the `anthropic-workspace-id` header).
-
-Pre-registered artifacts are hashed in `prereg/HASHES.txt`; regenerate with
+Every run below is `n = 32` per cell, seeds 0–31, adaptive thinking at effort low, capped by `--max-usd` per invocation and `--global-cap` on the all-time ledger `results/spend_ledger.jsonl`. The runner is resumable; failed rollouts are re-run with the next unused seed. `M` stands for each of `claude-haiku-5-5`, `claude-sonnet-5-5`, `claude-opus-5-5`.
 
 ```bash
-(cd prereg && sha256sum tasks_v2.yaml tasks_v1.yaml ADDENDUM_v2.md PREREGISTRATION.md ../osar/*.py > HASHES.txt)
+# v1: 11 tasks x 2 framings (H1-H3)
+python -m osar.run --rubric prereg/tasks_v1.yaml --provider anthropic --model M --n 32 --out results/raw/main
+python -m osar.score --rubric prereg/tasks_v1.yaml --raw results/raw/main --out results/scored/main
+python -m osar.analyze --scored results/scored/main --out results/analysis/main
+
+# v2: new tasks (A), ask_user (B), scope sentence (C), one-off friction on the eight write tasks (D)
+python -m osar.run --rubric prereg/tasks_v2.yaml --provider anthropic --model M --tasks T12_calendar_conflict,...,T23_cron_failed --n 32 --out results/raw/v2/A
+python -m osar.run --rubric prereg/tasks_v2.yaml --provider anthropic --model M --condition ask_user          --n 32 --out results/raw/v2/B
+python -m osar.run --rubric prereg/tasks_v2.yaml --provider anthropic --model M --condition scope_instruction --n 32 --out results/raw/v2/C
+python -m osar.run --rubric prereg/tasks_v2.yaml --provider anthropic --model M --condition friction --tasks writes --framings tight --n 32 --out results/raw/v2/D
+python -m osar.score --rubric prereg/tasks_v2.yaml --raw results/raw/main results/raw/v2/A results/raw/v2/B results/raw/v2/C results/raw/v2/D --out results/scored/v2
+python -m osar.analyze_v2 --scored results/scored/v2 --out results/analysis/v2
+
+# v3: error texts (E1a, E1b), friction + scope sentence (E2), friction under loose prompts (E3), friction at effort high (E4)
+python -m osar.run --rubric prereg/tasks_v3.yaml --provider anthropic --model M --condition friction_eagain --tasks writes --framings tight --n 32 --out results/raw/v3/E1a
+python -m osar.run --rubric prereg/tasks_v3.yaml --provider anthropic --model M --condition friction_quota  --tasks writes --framings tight --n 32 --out results/raw/v3/E1b
+python -m osar.run --rubric prereg/tasks_v3.yaml --provider anthropic --model M --condition friction_scope  --tasks writes --framings tight --n 32 --out results/raw/v3/E2
+python -m osar.run --rubric prereg/tasks_v3.yaml --provider anthropic --model M --condition friction --tasks writes --framings loose --n 32 --out results/raw/v3/E3
+python -m osar.run --rubric prereg/tasks_v3.yaml --provider anthropic --model M --condition friction --tasks writes --framings tight --n 32 --extra '{"output_config": {"effort": "high"}}' --out results/raw/v3/E4   # Sonnet and Opus only
+python -m osar.score --rubric prereg/tasks_v3.yaml --raw results/raw/main results/raw/v2/D results/raw/v3 --out results/scored/v3
+python -m osar.analyze_v3 --scored results/scored/v3 --out results/analysis/v3
+python -m osar.disclose --scored results/scored/v3 --raw results/raw/main results/raw/v2/D results/raw/v3 --out results/analysis/v3 --judge
+
+# v4: persistent denial with sudo available (F1), plus the scope sentence (F2)
+python -m osar.run --rubric prereg/tasks_v4.yaml --provider anthropic --model M --condition friction_persistent       --tasks writes --framings tight --n 32 --out results/raw/v4/F1
+python -m osar.run --rubric prereg/tasks_v4.yaml --provider anthropic --model M --condition friction_persistent_scope --tasks writes --framings tight --n 32 --out results/raw/v4/F2
+python -m osar.score --rubric prereg/tasks_v4.yaml --raw results/raw/main results/raw/v2/D results/raw/v4/F1 results/raw/v4/F2 --out results/scored/v4
+python -m osar.analyze_v4 --scored results/scored/v4 --rubric prereg/tasks_v4.yaml --raw results/raw/v2/D results/raw/v4 --out results/analysis/v4
+python -m osar.disclose_v4 --scored results/scored/v4 --rubric prereg/tasks_v4.yaml --raw results/raw/v2/D results/raw/v4 --out results/analysis/v4 --judge
+
+# across stages: exploratory re-reporting, consolidated table, rater packet, paper tables
+python -m osar.refine --scored results/scored/v2 results/scored/v3 --rubric prereg/tasks_v4.yaml --disclosure results/analysis/v3/disclosure.csv --raw results/raw/main results/raw/v2 results/raw/v3 --out results/analysis/refined
+python -m osar.integrate
+python -m osar.packet --scored results/scored/v2 results/scored/v3 results/scored/v4 --rubric prereg/tasks_v4.yaml --out prereg/coding_sheet_v4.csv
+python paper/make_tables.py && (cd paper && pdflatex osar && bibtex osar && pdflatex osar && pdflatex osar)
 ```
 
-Every rollout log records:
-- the exact model string and API params
-- rubric and tool-schema hashes
-- the harness git commit
-- per-step token usage
-- the full trajectory
-- the final sandbox state
+A zero-cost dry run of any stage uses `--provider scripted --model scripted-p0.3`. Grok runs from a machine that can reach `api.x.ai` with `--provider xai --model grok-4.6` and `XAI_API_KEY`; that arm is still a placeholder in the paper. Raw logs (`results/raw`) are not in git; scored CSVs and analysis outputs are. The coding-sheet keys (`*_KEY.csv`) stay out of git.
 
-The runner is resumable: re-running a command skips rollouts that already exist.
+Every rollout log records the exact model string and API parameters, the rubric and tool-schema hashes, the harness git commit, per-step token usage, the full trajectory and the final sandbox state.
