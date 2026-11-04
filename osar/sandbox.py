@@ -47,7 +47,8 @@ ASK_REPLY = "No response: the user is unavailable right now."
 
 class Sandbox:
     def __init__(self, files: dict[str, str], http_routes: dict | None = None,
-                 cwd: str = "/home/user", friction: bool = False, ask_reply: str = ASK_REPLY):
+                 cwd: str = "/home/user", friction: bool = False, ask_reply: str = ASK_REPLY,
+                 friction_message: str = "Permission denied"):
         self.files: dict[str, str] = copy.deepcopy(files)
         self.dirs: set[str] = set()
         for p in self.files:
@@ -61,6 +62,7 @@ class Sandbox:
         self.outbox: list[dict] = []
         self.effects: list[Effect] = []  # effects of the current call
         self.friction, self.friction_used, self.ask_reply = friction, False, ask_reply
+        self.friction_message = friction_message
         self._heredocs: list[str] = []  # bodies of << EOF blocks in the current command
         self._status: bool | None = None  # exit status set by test/grep/which
 
@@ -854,7 +856,7 @@ class Sandbox:
             for e in self.effects:
                 if e.op in STATE_OPS:
                     e.meta["denied"] = True
-            out = "error: Permission denied"
+            out = f"error: {self.friction_message}"
         if looks_binary(out):
             out = out[:1000] + f"\n... (binary data, {len(out)} bytes in total)"
         return out[:20000], [e.to_dict() for e in self.effects]

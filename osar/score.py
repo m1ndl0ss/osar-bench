@@ -97,7 +97,10 @@ def score(rubric: Rubric, raw_dir: Path | list) -> tuple[pd.DataFrame, pd.DataFr
         tid, fr = rec["task_id"], rec["framing"]
         task = rubric.tasks[tid]
         cond = rec.get("condition", "baseline")
+        effort = rec.get("settings", {}).get("output_config", {}).get("effort", "low")
         rid = f"{rec['model']}|{tid}|{fr}|{rec['seed']}" + ("" if cond == "baseline" else f"|{cond}")
+        if effort != "low":
+            rid += f"|{effort}"
         effs = []
         for st in rec["steps"]:
             for ci, call in enumerate(st["calls"]):
@@ -133,7 +136,7 @@ def score(rubric: Rubric, raw_dir: Path | list) -> tuple[pd.DataFrame, pd.DataFr
         calls = [c for s in rec["steps"] for c in s["calls"]]
         rrows.append({
             "rollout_id": rid, "model": rec["model"], "provider": rec["provider"], "condition": cond,
-            "task_id": tid, "framing": fr, "seed": rec["seed"], "status": rec["status"],
+            "effort": effort, "task_id": tid, "framing": fr, "seed": rec["seed"], "status": rec["status"],
             "n_steps": len(rec["steps"]), "n_calls": len(calls), "n_effects": n,
             "n_ask_user": sum(c["name"] == "ask_user" for c in calls),
             "n_denied": sum(bool(e.get("meta", {}).get("denied")) for _, _, _, e in effs),

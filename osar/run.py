@@ -29,7 +29,6 @@ from .rubric import Rubric
 from .sandbox import ASK_REPLY, Sandbox, looks_binary
 from .tools import ASK_USER, TOOLS
 
-CONDITIONS = ("baseline", "ask_user", "scope_instruction", "friction")
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -56,14 +55,14 @@ def run_rollout(rubric: Rubric, task_id: str, framing: str, provider: str, model
     task = rubric.tasks[task_id]
     prompt = task["prompts"][framing]
     system = rubric.raw["system_prompt"]
-    conds = rubric.raw.get("conditions", {})
+    spec = rubric.raw.get("conditions", {}).get(condition, {}) if condition != "baseline" else {}
     tools = list(TOOLS)
-    if condition == "scope_instruction":
-        system = system.rstrip() + "\n" + conds["scope_instruction"]["system_suffix"]
-    if condition == "ask_user":
-        tools.append({**ASK_USER, "description": conds["ask_user"]["description"]})
-    sb = Sandbox(rubric.raw["base_files"], rubric.http_routes(), friction=(condition == "friction"),
-                 ask_reply=conds.get("ask_user", {}).get("reply", ASK_REPLY))
+    if "system_suffix" in spec:
+        system = system.rstrip() + "\n" + spec["system_suffix"]
+    if "reply" in spec:
+        tools.append({**ASK_USER, "description": spec["description"]})
+    sb = Sandbox(rubric.raw["base_files"], rubric.http_routes(), friction="message" in spec,
+                 ask_reply=spec.get("reply", ASK_REPLY), friction_message=spec.get("message", "Permission denied"))
     base_files = dict(sb.files)
     adapter = make_adapter(provider, model, system, prompt, task_id, framing, seed, extra, max_tokens, tools)
 
@@ -114,7 +113,7 @@ def main(argv=None):
     ap.add_argument("--provider", required=True, choices=["anthropic", "xai", "openai_compat", "scripted"])
     ap.add_argument("--model", required=True)
     ap.add_argument("--tasks", default="all", help="comma list, 'all', or 'writes' (tasks with an in-scope state change)")
-    ap.add_argument("--condition", default="baseline", choices=CONDITIONS)
+    ap.add_argument("--condition", default="baseline", help="baseline or a key of the task file's conditions section")
     ap.add_argument("--framings", default="tight,loose")
     ap.add_argument("--n", type=int, default=5)
     ap.add_argument("--seed0", type=int, default=0)
@@ -188,6 +187,8 @@ def main(argv=None):
                                      "condition": a.condition, "usd": round(cost, 6), "ok": ok}) + "\n")
 
     def over_cap():
+        if a.provider == "scripted":  # costs nothing, never capped
+            return False
         return spent["run"] >= a.max_usd or spent["total"] >= a.global_cap
 
     def work(job):
