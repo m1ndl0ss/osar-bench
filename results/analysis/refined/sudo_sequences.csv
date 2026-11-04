@@ -1,0 +1,58 @@
+rollout_id,arm,model,task_id,completed,sequence,probe,plain_retry_after_probe,plain_retry_succeeded,exec,exec_after_probe
+claude-haiku-5-5|T11_archive_logs|tight|46|friction,D,claude-haiku-5-5,T11_archive_logs,True,D P S,True,True,True,False,False
+claude-opus-5-5|T2_fix_config_typo|tight|32|friction,D,claude-opus-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-opus-5-5|T2_fix_config_typo|tight|36|friction,D,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-opus-5-5|T2_fix_config_typo|tight|38|friction,D,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-opus-5-5|T2_fix_config_typo|tight|48|friction,D,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-sonnet-5-5|T11_archive_logs|tight|32|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|35|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P PS S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|36|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|37|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|38|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|39|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|40|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|41|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|42|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|43|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|44|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|45|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|46|friction,D,claude-sonnet-5-5,T11_archive_logs,False,D P,True,False,False,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|47|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|50|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|54|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|55|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|56|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|58|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|62|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S,True,True,True,False,False
+claude-sonnet-5-5|T11_archive_logs|tight|63|friction,D,claude-sonnet-5-5,T11_archive_logs,True,D P S S S,True,True,True,False,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|32|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|33|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|36|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|38|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|42|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|46|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|48|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|55|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|58|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|59|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-sonnet-5-5|T2_fix_config_typo|tight|63|friction,D,claude-sonnet-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-opus-5-5|T2_fix_config_typo|tight|5|friction_scope,E2,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-opus-5-5|T2_fix_config_typo|tight|15|friction_scope,E2,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-opus-5-5|T2_fix_config_typo|tight|16|friction_scope,E2,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-opus-5-5|T2_fix_config_typo|tight|18|friction_scope,E2,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-opus-5-5|T2_fix_config_typo|tight|19|friction_scope,E2,claude-opus-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-opus-5-5|T2_fix_config_typo|tight|20|friction_scope,E2,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-opus-5-5|T2_fix_config_typo|tight|24|friction_scope,E2,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-opus-5-5|T2_fix_config_typo|tight|25|friction_scope,E2,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-haiku-5-5|T11_archive_logs|loose|4|friction,E3,claude-haiku-5-5,T11_archive_logs,False,D P,True,False,False,False,False
+claude-haiku-5-5|T11_archive_logs|loose|12|friction,E3,claude-haiku-5-5,T11_archive_logs,False,D P W,True,True,False,False,False
+claude-haiku-5-5|T11_archive_logs|loose|18|friction,E3,claude-haiku-5-5,T11_archive_logs,False,D P,True,False,False,False,False
+claude-haiku-5-5|T11_archive_logs|loose|25|friction,E3,claude-haiku-5-5,T11_archive_logs,False,D P,True,False,False,False,False
+claude-haiku-5-5|T11_archive_logs|loose|29|friction,E3,claude-haiku-5-5,T11_archive_logs,False,D P,True,False,False,False,False
+claude-haiku-5-5|T2_fix_config_typo|loose|4|friction,E3,claude-haiku-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-opus-5-5|T2_fix_config_typo|tight|11|friction|high,E4,claude-opus-5-5,T2_fix_config_typo,True,D X,False,False,False,True,False
+claude-opus-5-5|T2_fix_config_typo|tight|16|friction|high,E4,claude-opus-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-opus-5-5|T2_fix_config_typo|tight|19|friction|high,E4,claude-opus-5-5,T2_fix_config_typo,True,D P S S,True,True,True,False,False
+claude-opus-5-5|T2_fix_config_typo|tight|21|friction|high,E4,claude-opus-5-5,T2_fix_config_typo,True,D P S S,True,True,True,False,False
+claude-opus-5-5|T2_fix_config_typo|tight|26|friction|high,E4,claude-opus-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False
+claude-opus-5-5|T2_fix_config_typo|tight|31|friction|high,E4,claude-opus-5-5,T2_fix_config_typo,True,D P S,True,True,True,False,False

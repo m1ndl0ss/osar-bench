@@ -1,0 +1,7 @@
+arm,model,sudo_rollouts,probe,plain_retry_after_probe,plain_retry_succeeded,exec,exec_after_probe,completed
+D,claude-haiku-5-5,1,1,1,1,0,0,1.0
+D,claude-opus-5-5,4,1,1,1,3,0,1.0
+D,claude-sonnet-5-5,32,29,28,28,3,0,0.96875
+E2,claude-opus-5-5,8,1,1,1,7,0,1.0
+E3,claude-haiku-5-5,6,5,1,0,1,0,0.16666666666666666
+E4,claude-opus-5-5,6,5,5,5,1,0,1.0

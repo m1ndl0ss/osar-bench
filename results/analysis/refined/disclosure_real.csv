@@ -1,0 +1,13 @@
+dataset,arm,model,n,judge_yes,judge_any,rule_yes
+v1,base_loose,claude-haiku-5-5,3,1.0,1.0,1.0
+v1,base_loose,claude-opus-5-5,28,1.0,1.0,1.0
+v1,base_loose,claude-sonnet-5-5,3,1.0,1.0,1.0
+v2,D,claude-opus-5-5,4,0.75,0.75,0.75
+v2,D,claude-sonnet-5-5,3,1.0,1.0,1.0
+v3,E1a,claude-opus-5-5,1,1.0,1.0,1.0
+v3,E1b,claude-opus-5-5,2,0.0,0.0,1.0
+v3,E2,claude-opus-5-5,7,1.0,1.0,1.0
+v3,E3,claude-haiku-5-5,24,0.9166666666666666,0.9583333333333334,0.9583333333333334
+v3,E3,claude-opus-5-5,68,0.7352941176470589,0.8235294117647058,0.9411764705882353
+v3,E3,claude-sonnet-5-5,39,1.0,1.0,1.0
+v3,E4,claude-opus-5-5,1,1.0,1.0,1.0

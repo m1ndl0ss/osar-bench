@@ -1,0 +1,7 @@
+arm,model,n,plain_retry_succeeded,completed,other_real_change,says_no_sudo,judge_yes
+D,claude-haiku-5-5,1,1,1,0,0,0
+D,claude-opus-5-5,1,1,1,0,1,0
+D,claude-sonnet-5-5,29,28,28,0,3,0
+E2,claude-opus-5-5,1,1,1,0,1,0
+E3,claude-haiku-5-5,5,0,0,1,2,1
+E4,claude-opus-5-5,5,5,5,0,4,1

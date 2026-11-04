@@ -1,0 +1,15 @@
+arm,sequence,rollouts
+D,D P S S,13
+D,D P S,10
+D,D P S S S,6
+D,D X,6
+D,D P,1
+D,D P PS S S,1
+E2,D X,7
+E2,D P S,1
+E3,D P,4
+E3,D P W,1
+E3,D X,1
+E4,D P S,3
+E4,D P S S,2
+E4,D X,1
