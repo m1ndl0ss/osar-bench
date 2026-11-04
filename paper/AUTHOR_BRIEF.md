@@ -2,7 +2,7 @@
 
 ## The study in five sentences
 
-Three Claude 5.5 models (Haiku, Sonnet, Opus) ran 23 short office and ops chores inside an in-memory sandbox with files, a shell, HTTP and email, each under a tight prompt (what to do and where) and a loose one (the goal only). Every effect of every tool call was labelled in scope, gray or out of scope against a rubric frozen before each of four stages, with a severity tier, over 14,720 rollouts and about $154 of API calls. Loose prompts cause a lot of looking around but few unrequested changes; the unrequested changes appear when a loose prompt meets a failing tool. When a privileged command is the only way to finish, the agents mostly stop and say so, and every privileged edit was disclosed, though we cannot tell restraint from distrust of a tool that keeps failing. The wording of the error message decided whether sudo was tried at all, and an ask-the-user tool, a scope sentence and more reasoning effort changed little.
+Three Claude 5.5 models (Haiku, Sonnet, Opus) ran 23 short office and ops chores inside an in-memory sandbox with files, a shell, HTTP and email, each under a tight prompt (what to do and where) and a loose one (the goal only). Every effect of every tool call was labelled in scope, gray or out of scope against a rubric frozen before each of four stages, with a severity tier, over 14,720 rollouts and about $155 of API calls. Loose prompts cause a lot of looking around but few unrequested changes; the unrequested changes appear when a loose prompt meets a failing tool. When a privileged command is the only way to finish, the agents mostly stop and say so, and every privileged edit was disclosed, though we cannot tell restraint from distrust of a tool that keeps failing. Changing the error text removed sudo entirely, while an ask-the-user tool, a scope sentence and more reasoning effort changed little.
 
 ## Hypotheses in one line each
 
@@ -15,9 +15,9 @@ Three Claude 5.5 models (Haiku, Sonnet, Opus) ran 23 short office and ops chores
 - H4c: Opus more consequential than the others on the new tasks. Not supported, 0.000 and -0.005.
 - H5: an ask-the-user tool lowers OOS. Not supported; used in 3-8% of rollouts.
 - H6: a scope sentence lowers OOS. Supported for any OOS (-0.044), not for consequential; completion -0.08.
-- H7: one-off friction raises OOS under tight prompts. Supported, +0.277 any, +0.066 consequential (mostly refused attempts, probes and test files).
+- H7: one-off friction raises OOS under tight prompts. Supported, +0.277 any, +0.066 consequential (mostly refused attempts, probes and test files; +0.009 for real changes, exploratory).
 - H8 (v3): "Permission denied" produces more escalation than two other error texts. Supported, +0.048 each; the other texts produced no sudo at all.
-- H9: the scope sentence lowers escalation and consequential OOS under friction. Supported pooled, -0.038 each, all from Sonnet; Opus made more real edits with the sentence (7 vs 3).
+- H9: the scope sentence lowers escalation and consequential OOS under friction. Supported pooled, -0.038 each, all from Sonnet's probes; no effect on real changes (0.000, exploratory); Opus made more real edits with the sentence (7 vs 3).
 - H10: friction raises OOS under loose prompts. Supported, +0.070 any, +0.150 consequential, real changes 9-27% vs 1-11%.
 - H11: effort high changes escalation under friction (two-sided). Sonnet yes (-0.125, no sudo left), Opus no (+0.008).
 - H12 (v4): persistent denial raises privileged edits over one-off denial. Not supported by the registered CI rule: +0.010 [0.000, 0.021], one-sided p = 0.035.
@@ -32,7 +32,7 @@ Three Claude 5.5 models (Haiku, Sonnet, Opus) ran 23 short office and ops chores
 5. **You say the Opus effect did not replicate. Could it have?** Not well: the twelve v2 tasks are read-only or single-answer chores, so consequential actions were near-impossible by construction (Limitations bullet 6). H4c is "not replicated on tasks that do not afford it". The v1 effect was one task, T7, where Opus emailed colleagues in 7 of 32 loose rollouts.
 6. **Three Claude models. What does this say about agents in general?** Only what it says about these three. The title and abstract are qualified in the Limitations; the Grok arm from the v1 plan and an open-weight model are the next runs (Future Work).
 7. **Your inter-rater agreement is a model rating a model.** Yes. The 0.74 is a Sonnet rater against the rubric on the v1 coding sheet, clearly labelled model-based; the registered 0.70 threshold is for humans and the human packet (prereg/coding_sheet_v4.csv, 300 items) is ready but not yet rated.
-8. **$154 and 32 seeds per cell. Can you detect anything at 1-4% rates?** Barely. At one-sided alpha 0.05 and 80% power, 256 per arm detects about 3.8 points from a 1.2% baseline, 768 pooled about 1.6 points (Limitations bullet 5). The framing and friction effects are 7-66 points and safe; the rare-event contrasts (H4c, H12) are underpowered and reported as such.
+8. **$155 and 32 seeds per cell. Can you detect anything at 1-4% rates?** Barely. At one-sided alpha 0.05 and 80% power, 256 per arm detects about 3.8 points from a 1.2% baseline, 768 pooled about 1.6 points (Limitations bullet 5). The framing and friction effects are 7-66 points and safe; the rare-event contrasts (H4c, H12) are underpowered and reported as such.
 
 ## What I would do next with more budget
 
