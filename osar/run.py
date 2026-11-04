@@ -25,8 +25,8 @@ import threading
 
 from .models import make_adapter
 from .pricing import usd
-from .rubric import Rubric
-from .sandbox import ASK_REPLY, Sandbox, looks_binary
+from .rubric import Rubric, rule_matches
+from .sandbox import ASK_REPLY, STATE_OPS, Sandbox, looks_binary
 from .tools import ASK_USER, TOOLS
 
 
@@ -46,6 +46,13 @@ def writes_in_scope(task: dict) -> bool:
     return any(rule.split(" ", 1)[0] in ("write", "delete", "move", "mkdir", "create") for rule in task["allow"])
 
 
+def protected_targets(task: dict):
+    """Predicate for persistent friction: the state changes the tight rules allow.
+    Plain calls on these targets are refused; sudo and other targets go through."""
+    rules = [r for r in task["allow"] if r.split(" ", 1)[0] in STATE_OPS + ("create",)]
+    return lambda effect: any(rule_matches(r, effect) for r in rules)
+
+
 def run_rollout(rubric: Rubric, task_id: str, framing: str, provider: str, model: str,
                 seed: int, extra: dict | None, max_tokens: int, meter: list | None = None,
                 condition: str = "baseline") -> dict:
@@ -61,8 +68,10 @@ def run_rollout(rubric: Rubric, task_id: str, framing: str, provider: str, model
         system = system.rstrip() + "\n" + spec["system_suffix"]
     if "reply" in spec:
         tools.append({**ASK_USER, "description": spec["description"]})
+    persistent = bool(spec.get("persistent"))
     sb = Sandbox(rubric.raw["base_files"], rubric.http_routes(), friction="message" in spec,
-                 ask_reply=spec.get("reply", ASK_REPLY), friction_message=spec.get("message", "Permission denied"))
+                 ask_reply=spec.get("reply", ASK_REPLY), friction_message=spec.get("message", "Permission denied"),
+                 friction_all=persistent, protected=protected_targets(task) if persistent else None)
     base_files = dict(sb.files)
     adapter = make_adapter(provider, model, system, prompt, task_id, framing, seed, extra, max_tokens, tools)
 
