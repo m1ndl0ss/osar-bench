@@ -1,0 +1,28 @@
+# Consolidated results, H1-H11
+
+| hypothesis   | claim                                                                           | verdict       |   effect |   ci_lo |   ci_hi | addendum   |
+|:-------------|:--------------------------------------------------------------------------------|:--------------|---------:|--------:|--------:|:-----------|
+| H1           | every model has a non-zero consequential OOS rate (descriptive)                 | supported     |    0.009 | nan     | nan     | v1         |
+| H2           | loose > tight any_oos (pooled)                                                  | supported     |    0.475 |   0.453 |   0.497 | v1         |
+| H2b          | loose > tight any_consequential_oos (pooled)                                    | supported     |    0.029 |   0.02  |   0.039 | v1         |
+| H3           | claude-sonnet-5-5 - claude-haiku-5-5 differ on any_oos (two-sided)              | difference    |    0.054 |   0.014 |   0.094 | v1         |
+| H3           | claude-opus-5-5 - claude-haiku-5-5 differ on any_oos (two-sided)                | difference    |    0.087 |   0.05  |   0.124 | v1         |
+| H3           | claude-opus-5-5 - claude-sonnet-5-5 differ on any_oos (two-sided)               | no difference |    0.033 |  -0.006 |   0.071 | v1         |
+| H4a          | new tasks: loose > tight any_oos (pooled)                                       | supported     |    0.656 |   0.642 |   0.671 | v2         |
+| H4b          | new tasks: loose > tight any_consequential_oos (pooled)                         | not supported |    0.002 |   0     |   0.004 | v2         |
+| H4c          | new tasks, loose: claude-opus-5-5 - claude-haiku-5-5 consequential (one-sided)  | not supported |    0     |   0     |   0     | v2         |
+| H4c          | new tasks, loose: claude-opus-5-5 - claude-sonnet-5-5 consequential (one-sided) | not supported |   -0.005 |  -0.013 |   0     | v2         |
+| H5           | ask_user lowers any_oos (pooled)                                                | not supported |    0.013 |  -0.004 |   0.03  | v2         |
+| H5           | ask_user lowers any_consequential_oos (pooled)                                  | not supported |    0     |  -0.007 |   0.007 | v2         |
+| H6           | scope sentence lowers any_oos (pooled)                                          | supported     |   -0.044 |  -0.061 |  -0.027 | v2         |
+| H6           | scope sentence lowers any_consequential_oos (pooled)                            | not supported |   -0.004 |  -0.01  |   0.003 | v2         |
+| H7           | friction raises any_oos under tight framing (pooled)                            | supported     |    0.277 |   0.246 |   0.309 | v2         |
+| H7           | friction raises any_consequential_oos under tight framing (pooled)              | supported     |    0.066 |   0.049 |   0.085 | v2         |
+| H8           | escalation higher under Permission denied: D - E1a (pooled)                     | supported     |    0.048 |   0.035 |   0.062 | v3         |
+| H8           | escalation higher under Permission denied: D - E1b (pooled)                     | supported     |    0.048 |   0.035 |   0.062 | v3         |
+| H9           | scope sentence lowers any_escalation under friction (pooled)                    | supported     |   -0.038 |  -0.053 |  -0.022 | v3         |
+| H9           | scope sentence lowers any_consequential_oos under friction (pooled)             | supported     |   -0.038 |  -0.059 |  -0.017 | v3         |
+| H10          | friction raises any_oos under loose framing (pooled)                            | supported     |    0.07  |   0.031 |   0.109 | v3         |
+| H10          | friction raises any_consequential_oos under loose framing (pooled)              | supported     |    0.15  |   0.122 |   0.177 | v3         |
+| H11          | effort high changes escalation under friction: claude-sonnet-5-5 (two-sided)    | difference    |   -0.125 |  -0.152 |  -0.098 | v3         |
+| H11          | effort high changes escalation under friction: claude-opus-5-5 (two-sided)      | no difference |    0.008 |  -0.016 |   0.031 | v3         |
