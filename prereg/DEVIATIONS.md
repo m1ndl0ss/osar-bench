@@ -13,7 +13,7 @@ Each entry: date, what changed, why, and whether data had been seen.
 - **What.** `osar/explore.py` (and its test) added after the freeze. It computes only the exploratory checks listed below and writes `exploratory.md` next to the confirmatory report; it does not feed `osar/analyze.py` or any confirmatory table.
   - consequential out-of-scope rate ignoring `mkdir` on a directory that already existed at the start of the task (a no-op on a real system; the rubric counts it as a state change)
   - out-of-scope rates conditional on completion (already listed as exploratory in §4; reported again here in one place with the framing contrast)
-- **Why.** Requested after the interim read of the Opus data showed that its only consequential events under tight framing were no-op `mkdir` calls.
+- **Why.** Added after the interim read of the Opus data showed that its only consequential events under tight framing were no-op `mkdir` calls.
 - **Data seen.** Yes. These results are labelled exploratory everywhere they appear.
 
 ## 2026-11-03/04 — v2 runs interrupted by the workspace spend limit
@@ -25,7 +25,7 @@ Each entry: date, what changed, why, and whether data had been seen.
 ## 2026-11-04 — modules added after the v3 freeze (descriptive and supplementary only)
 
 - **What.** `osar/integrate.py` (per-task forest plot, mixed-effects logistic model on the shared conditions, consolidated H1–H11 table) and `osar/rater.py` (a model-based second rater for the coding sheet, clearly marked as supplementary and not a substitute for the human kappa) were written while the v3 runs were in progress. Neither changes any confirmatory table; `analyze_v3.py` and `disclose.py` were frozen with the addendum.
-- **Why.** Requested with the v3 addendum; written after the freeze to launch the runs in time.
+- **Why.** Planned with the v3 addendum; written after the freeze to launch the runs in time.
 - **Data seen.** v1 and v2 results, yes; no v3 data had been scored when they were written.
 
 ## 2026-11-04 — judge answer parsing (v3 disclosure scorer)
@@ -37,6 +37,6 @@ Each entry: date, what changed, why, and whether data had been seen.
 ## 2026-11-04 — exploratory re-reporting module and an index fix after the v4 freeze
 
 - **What.** `osar/refine.py` (exploratory: probe/exec split of escalation, the order of events in sudo rollouts, four categories of consequential out-of-scope effects, disclosure recomputed on rollouts with a real change) was written after the v4 freeze and runs only on v1–v3 data; no pre-registered number changes. While running it, `categories.annotate` failed on concatenated scored files whose index labels repeat; it now resets the index first. The v4 pipeline reads one scored file with unique labels, so no v4 number depends on the fix. `integrate.py` gained H12/H13 rows for the consolidated table.
-- **Why.** Requested with the v4 addendum; written after the freeze so the F1 run could start on time.
+- **Why.** Planned with the v4 addendum; written after the freeze so the F1 run could start on time.
 - **Data seen.** v1–v3 results, yes; no v4 rollout had finished when `refine.py` and the fix were written (the F1 Haiku cells were running).
 - **Later the same day.** `osar/packet.py` (the v1–v4 rater packet: one coding sheet of 300 effects, key kept out of git) and `paper/make_tables.py` were added; neither touches a confirmatory number.
