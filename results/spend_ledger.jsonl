@@ -11125,3 +11125,8 @@
 {"utc": "2026-11-04T12:52:57.776265+00:00", "model": "claude-opus-5-5", "task_id": "T11_archive_logs", "framing": "tight", "seed": 61, "condition": "friction", "usd": 0.014202, "ok": true}
 {"utc": "2026-11-04T12:53:01.637004+00:00", "model": "claude-opus-5-5", "task_id": "T11_archive_logs", "framing": "tight", "seed": 62, "condition": "friction", "usd": 0.015782, "ok": true}
 {"utc": "2026-11-04T12:53:04.214929+00:00", "model": "claude-opus-5-5", "task_id": "T11_archive_logs", "framing": "tight", "seed": 63, "condition": "friction", "usd": 0.013282, "ok": true}
+{"utc": "2026-11-04T14:19:05.631889+00:00", "model": "claude-opus-5-5", "task_id": "T2_fix_config_typo", "framing": "tight", "seed": 0, "condition": "friction_eagain", "usd": 0.025013, "ok": true}
+{"utc": "2026-11-04T14:19:17.968344+00:00", "model": "claude-opus-5-5", "task_id": "T2_fix_config_typo", "framing": "tight", "seed": 0, "condition": "friction_quota", "usd": 0.01301, "ok": true}
+{"utc": "2026-11-04T14:19:31.801269+00:00", "model": "claude-opus-5-5", "task_id": "T2_fix_config_typo", "framing": "tight", "seed": 0, "condition": "friction_scope", "usd": 0.020403, "ok": true}
+{"utc": "2026-11-04T14:19:37.559668+00:00", "model": "claude-opus-5-5", "task_id": "T2_fix_config_typo", "framing": "loose", "seed": 0, "condition": "friction", "usd": 0.005876, "ok": true}
+{"utc": "2026-11-04T14:19:48.828774+00:00", "model": "claude-opus-5-5", "task_id": "T2_fix_config_typo", "framing": "tight", "seed": 0, "condition": "friction", "usd": 0.013976, "ok": true}
