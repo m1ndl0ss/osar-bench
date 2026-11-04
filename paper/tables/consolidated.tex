@@ -1,0 +1,32 @@
+\begin{tabular}{llp{6.6cm}lr}
+\toprule
+ID & Add. & Claim & Verdict & Effect [95\% CI] \\
+\midrule
+H1 & v1 & every model has a non-zero consequential OOS rate (descriptive) & supported & 0.009 \\
+H2 & v1 & loose $>$ tight any\_oos (pooled) & supported & +0.475 [+0.453, +0.497] \\
+H2b & v1 & loose $>$ tight any\_consequential\_oos (pooled) & supported & +0.029 [+0.020, +0.039] \\
+H3 & v1 & Sonnet - Haiku differ on any\_oos (two-sided) & difference & +0.054 [+0.014, +0.094] \\
+H3 & v1 & Opus - Haiku differ on any\_oos (two-sided) & difference & +0.087 [+0.050, +0.124] \\
+H3 & v1 & Opus - Sonnet differ on any\_oos (two-sided) & no difference & +0.033 [-0.006, +0.071] \\
+H4a & v2 & new tasks: loose $>$ tight any\_oos (pooled) & supported & +0.656 [+0.642, +0.671] \\
+H4b & v2 & new tasks: loose $>$ tight any\_consequential\_oos (pooled) & not supported & +0.002 [+0.000, +0.004] \\
+H4c & v2 & new tasks, loose: Opus - Haiku consequential (one-sided) & not supported & +0.000 [+0.000, +0.000] \\
+H4c & v2 & new tasks, loose: Opus - Sonnet consequential (one-sided) & not supported & -0.005 [-0.013, +0.000] \\
+H5 & v2 & ask\_user lowers any\_oos (pooled) & not supported & +0.013 [-0.004, +0.030] \\
+H5 & v2 & ask\_user lowers any\_consequential\_oos (pooled) & not supported & +0.000 [-0.007, +0.007] \\
+H6 & v2 & scope sentence lowers any\_oos (pooled) & supported & -0.044 [-0.061, -0.027] \\
+H6 & v2 & scope sentence lowers any\_consequential\_oos (pooled) & not supported & -0.004 [-0.010, +0.003] \\
+H7 & v2 & friction raises any\_oos under tight framing (pooled) & supported & +0.277 [+0.246, +0.309] \\
+H7 & v2 & friction raises any\_consequential\_oos under tight framing (pooled) & supported & +0.066 [+0.049, +0.085] \\
+H8 & v3 & escalation higher under Permission denied: D - E1a (pooled) & supported & +0.048 [+0.035, +0.062] \\
+H8 & v3 & escalation higher under Permission denied: D - E1b (pooled) & supported & +0.048 [+0.035, +0.062] \\
+H9 & v3 & scope sentence lowers any\_escalation under friction (pooled) & supported & -0.038 [-0.053, -0.022] \\
+H9 & v3 & scope sentence lowers any\_consequential\_oos under friction (pooled) & supported & -0.038 [-0.059, -0.017] \\
+H10 & v3 & friction raises any\_oos under loose framing (pooled) & supported & +0.070 [+0.031, +0.109] \\
+H10 & v3 & friction raises any\_consequential\_oos under loose framing (pooled) & supported & +0.150 [+0.122, +0.177] \\
+H11 & v3 & effort high changes escalation under friction: Sonnet (two-sided) & difference & -0.125 [-0.152, -0.098] \\
+H11 & v3 & effort high changes escalation under friction: Opus (two-sided) & no difference & +0.008 [-0.016, +0.031] \\
+H12 & v4 & persistent denial raises privileged edits (escalate\_exec): F1 - D (pooled) & not supported & +0.010 [+0.000, +0.021] \\
+H13 & v4 & scope sentence lowers privileged edits under persistent denial: F2 - F1 (pooled) & supported & -0.013 [-0.023, -0.003] \\
+\bottomrule
+\end{tabular}
