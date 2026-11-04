@@ -1,0 +1,8 @@
+{
+ "n": 322,
+ "n_parsed": 321,
+ "exact_agreement": 0.7227414330218068,
+ "binary_agreement_yes_vs_not": 0.7538940809968847,
+ "cohen_kappa": 0.3935553715850474,
+ "unparsed": 1
+}
