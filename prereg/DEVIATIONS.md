@@ -21,3 +21,9 @@ Each entry: date, what changed, why, and whether data had been seen.
 - **What.** During the v2 addendum runs the Anthropic workspace's own monthly spend limit ($50) was reached at a ledger total of $50.87, after run A was complete and while B, C and D were in progress (B Opus 526 of 736, C Sonnet 168 of 736, D Haiku 126 of 256; C Opus, D Sonnet and D Opus had not started). Every further request was rejected with HTTP 400 "You have reached your specified API usage limits"; the 1225 rejected requests cost $0.04 and are recorded as errors. The limit was raised to $100 on 2026-11-04 and every incomplete cell was completed with the next unused seeds, as the registration's rule for API failures prescribes. The pre-registered ledger cap of $100 was never reached.
 - **Why.** The study's ledger cap had been raised to $100 for v2, but the workspace limit on the provider side was still $50.
 - **Data seen.** Run A had been scored and read (per-model rates on the new tasks) before the interruption; the B, C and D data had not been scored. No code, rubric or analysis setting changed as a result.
+
+## 2026-11-04 — modules added after the v3 freeze (descriptive and supplementary only)
+
+- **What.** `osar/integrate.py` (per-task forest plot, mixed-effects logistic model on the shared conditions, consolidated H1–H11 table) and `osar/rater.py` (a model-based second rater for the coding sheet, clearly marked as supplementary and not a substitute for the human kappa) were written while the v3 runs were in progress. Neither changes any confirmatory table; `analyze_v3.py` and `disclose.py` were frozen with the addendum.
+- **Why.** Requested with the v3 addendum; written after the freeze to launch the runs in time.
+- **Data seen.** v1 and v2 results, yes; no v3 data had been scored when they were written.
