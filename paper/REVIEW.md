@@ -84,3 +84,12 @@ Fixed: "under 1% of baseline rollouts" was true only over all 4,416 baselines (0
 - "Error wording beats instructions" is still phrased as a finding rather than a descriptive comparison.
 - Judge and rater costs outside the ledger remain an estimate.
 - Human kappa and the Grok arm remain placeholders in the PDF.
+
+## 8. Status after the third revision
+
+- Real-change sensitivity table for H7, H9, H10: **addressed** (Appendix C, `osar/sensitivity.py`, exploratory; H10 holds, H7 shrinks to +0.009, H9 vanishes).
+- Unrequested-only range (9--19%): **addressed** (abstract, Section 4.3, README, FINDINGS, LinkedIn draft).
+- "Error wording beats instructions": **addressed** (now a descriptive comparison across separate contrasts, in the abstract, introduction, Sections 4.5 and 6, README, FINDINGS, drafts).
+- Judge and rater costs: **addressed** (estimate with its basis in the Conclusion and Appendix F).
+- Forest figure: **addressed** (full text width).
+- Still open: labelling the suspicion sheet and any judge scoring; the real-shell replication; Grok and an open-weight model; the human kappa and Grok placeholders in the PDF.
