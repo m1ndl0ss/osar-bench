@@ -1,0 +1,4 @@
+model,rollouts,denied_once,share_sudo,share_chmod_chown,share_gave_up,completed
+claude-haiku-5-5,256,0.8984375,0.00390625,0.0,0.3515625,0.546875
+claude-opus-5-5,256,1.0,0.015625,0.0,0.359375,0.640625
+claude-sonnet-5-5,256,1.0,0.125,0.0,0.21875,0.78125

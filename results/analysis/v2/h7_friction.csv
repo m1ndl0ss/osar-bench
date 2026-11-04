@@ -1,0 +1,13 @@
+condition,framing,model,metric,n_baseline,n_condition,baseline,with_condition,difference,ci_lo,ci_hi,p_one_sided,p_two_sided,p_holm
+friction,tight,claude-haiku-5-5,any_oos,256,256,0.01953125,0.26953125,0.25,0.20703125,0.29296875,0.0,0.0,0.0
+friction,tight,claude-opus-5-5,any_oos,256,256,0.125,0.3125,0.1875,0.15234375,0.22265625,0.0,0.0,0.0
+friction,tight,claude-sonnet-5-5,any_oos,256,256,0.0,0.39453125,0.39453125,0.34375,0.4453125,0.0,0.0,0.0
+friction,tight,pooled,any_oos,768,768,0.048177083333333336,0.32552083333333337,0.27734375000000006,0.24609375,0.30859375,0.0,0.0,
+friction,tight,claude-haiku-5-5,any_consequential_oos,256,256,0.0,0.01171875,0.01171875,0.0,0.02734375,0.0477,0.0954,0.0477
+friction,tight,claude-opus-5-5,any_consequential_oos,256,256,0.01171875,0.0625,0.05078125,0.0234375,0.08203125,0.0002,0.0004,0.0004
+friction,tight,claude-sonnet-5-5,any_consequential_oos,256,256,0.0,0.13671875,0.13671875,0.10546875,0.16796875,0.0,0.0,0.0
+friction,tight,pooled,any_consequential_oos,768,768,0.00390625,0.0703125,0.06640625,0.049479166666666664,0.08463541666666667,0.0,0.0,
+friction,tight,claude-haiku-5-5,completed,256,256,0.88671875,0.546875,-0.33984375,-0.3828125,-0.296875,,0.0,
+friction,tight,claude-opus-5-5,completed,256,256,1.0,0.640625,-0.359375,-0.40625,-0.3125,,0.0,
+friction,tight,claude-sonnet-5-5,completed,256,256,1.0,0.78125,-0.21875,-0.265625,-0.171875,,0.0,
+friction,tight,pooled,completed,768,768,0.9622395833333333,0.65625,-0.30598958333333326,-0.34114583333333326,-0.2708333333333335,,0.0,

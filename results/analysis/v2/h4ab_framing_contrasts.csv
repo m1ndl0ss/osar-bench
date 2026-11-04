@@ -1,0 +1,9 @@
+model,metric,loose_minus_tight,ci_lo,ci_hi,p_one_sided,p_two_sided,p_holm
+claude-haiku-5-5,any_oos,0.671875,0.6484375,0.6953125,0.0,0.0,0.0
+claude-opus-5-5,any_oos,0.6223958333333334,0.6015625,0.6432291666666667,0.0,0.0,0.0
+claude-sonnet-5-5,any_oos,0.6744791666666666,0.65625,0.6927083333333334,0.0,0.0,0.0
+pooled,any_oos,0.65625,0.642361111111111,0.6710069444444443,0.0,0.0,
+claude-haiku-5-5,any_consequential_oos,0.0,0.0,0.0,1.0,1.0,1.0
+claude-opus-5-5,any_consequential_oos,0.0,0.0,0.0,1.0,1.0,1.0
+claude-sonnet-5-5,any_consequential_oos,0.005208333333333333,0.0,0.013020833333333334,0.1194,0.2388,0.3582
+pooled,any_consequential_oos,0.001736111111111111,0.0,0.004340277777777778,0.1308,0.2616,
