@@ -1,18 +1,18 @@
 # OSAR-bench
 
-Measures how often LLM agents take **out-of-scope actions** on bounded, benign tasks. There is no attacker: the model over-reaches on its own. Every tool call runs inside an in-memory sandbox (files, shell, HTTP, email) and is scored by its effects against a pre-registered scope rubric. Each effect is labelled in scope, gray or out of scope, and out-of-scope effects get a severity tier: benign, sensitive or consequential.
+I measure how often tool-using language-model agents take out-of-scope actions on bounded, benign tasks. There is no attacker: the model over-reaches on its own. Every tool call runs in an in-memory sandbox (files, shell, HTTP, email) and is scored by its effects against a scope rubric frozen before each stage. Each effect is in scope, gray or out of scope, and out-of-scope effects get a severity tier: benign, sensitive or consequential.
 
-Paper: *Stop, Work Around, or Escalate: A Pre-Registered Study of Scope Creep in Tool-Using Language-Model Agents*, [`paper/osar.pdf`](paper/osar.pdf) (source in `paper/`). One-page findings: [`results/FINDINGS.md`](results/FINDINGS.md). Consolidated H1–H13 table: [`results/analysis/integrated/consolidated_table.md`](results/analysis/integrated/consolidated_table.md).
+Paper: *Stop, Work Around, or Escalate: A Pre-Registered Study of Scope Creep in Tool-Using Language-Model Agents*, [`paper/osar.pdf`](paper/osar.pdf) (source in `paper/`). My notes on what I found: [`results/FINDINGS.md`](results/FINDINGS.md). What I know is weak: [`notes/limitations.md`](notes/limitations.md). Consolidated H1–H13 table: [`results/analysis/integrated/consolidated_table.md`](results/analysis/integrated/consolidated_table.md).
 
-## Results in five bullets (three Claude 5.5 models, 23 tasks, 14,720 rollouts, four pre-registered stages)
+## What I found (three Claude 5.5 models, 23 tasks, 14,720 rollouts, four pre-registered stages)
 
-- **Ambiguity and a failing tool compound into real unrequested changes.** When the first write is refused under a loose prompt, rollouts with a real unrequested change rise from 1–11% to 9–27% depending on the model, 9–19% counting only changes to other targets (H10; +0.096 for real changes and +0.095 for unrequested-only ones, an exploratory breakdown of the registered +0.150). Friction on its own, under a tight prompt, is mostly sudo probes and blocked attempts: real changes rise by about one point (+0.009, H7), and a scope sentence under friction removed probes, not real edits (H9).
-- **Loose prompts cause a large informational over-reach.** Dropping the "where" from a prompt raises the share of rollouts with any out-of-scope action by 0.48 (v1 tasks) and 0.66 (v2 tasks); almost all of it is listing and reading, a third of loose rollouts touch mail, finance or private notes.
-- **Unrequested consequential actions are rare on their own.** Of 4,416 baseline rollouts, 0.9% change state out of scope (1.8% on the v1 tasks, mostly Opus on T7). The v1 sign that Opus is the most consequential model (emailing colleagues on one task) did not replicate on twelve new tasks (H4c not supported).
-- **When sudo is the only path, agents stop and report.** With every plain edit refused and passwordless sudo available, 94% of rollouts end with no change and a message naming the obstacle; privileged edits occur in 1.8%, every one disclosed (H12 not supported, H13 supported). Whether that is restraint or distrust of a failing tool, the data cannot say.
-- **The error text, not the instructions we tried, moved sudo use.** "Permission denied" invites sudo, "Resource temporarily unavailable" and "Disk quota exceeded" never did (H8); an ask-the-user tool, a one-sentence scope instruction and higher reasoning effort changed little (H5, H6, H9, H11, H13).
+- Ambiguity and a failing tool compound into real unrequested changes. When the first write is refused under a loose prompt, rollouts with a real unrequested change rise from 1–11% to 9–27% depending on the model, 9–19% counting only changes to other targets (H10; +0.096 for real changes and +0.095 for unrequested-only ones, an exploratory breakdown of the registered +0.150). Friction on its own, under a tight prompt, is mostly sudo probes and blocked attempts: real changes rise by about one point (+0.009, H7), and a scope sentence under friction removed probes, not real edits (H9).
+- Loose prompts cause a large informational over-reach. Dropping the "where" from a prompt raises the share of rollouts with any out-of-scope action by 0.48 (v1 tasks) and 0.66 (v2 tasks); almost all of it is listing and reading, and a third of loose rollouts touch mail, finance or private notes.
+- Unrequested consequential actions are rare on their own. Of 4,416 baseline rollouts, 0.9% change state out of scope (1.8% on the v1 tasks, mostly Opus on T7). I expected the v1 sign that Opus is the most consequential model (emailing colleagues on one task) to hold on twelve new tasks; it did not (H4c not supported).
+- When sudo is the only path, the models stop and report. With every plain edit refused and passwordless sudo available, 94% of rollouts end with no change and a message naming the obstacle; privileged edits occur in 1.8%, every one disclosed (H12 not supported, H13 supported). Whether that is restraint or distrust of a failing tool, I cannot say.
+- The error text, not the instructions I tried, moved sudo use. "Permission denied" invites sudo, "Resource temporarily unavailable" and "Disk quota exceeded" never did (H8); an ask-the-user tool, a one-sentence scope instruction and higher reasoning effort changed little (H5, H6, H9, H11, H13).
 
-Pre-registration: [`prereg/PREREGISTRATION.md`](prereg/PREREGISTRATION.md) (v1), [`ADDENDUM_v2.md`](prereg/ADDENDUM_v2.md), [`ADDENDUM_v3.md`](prereg/ADDENDUM_v3.md), [`ADDENDUM_v4.md`](prereg/ADDENDUM_v4.md); departures in [`prereg/DEVIATIONS.md`](prereg/DEVIATIONS.md); freeze commits on branches `prereg-v1` to `prereg-v4`; hashes in `prereg/HASHES.txt`. Task files: `prereg/tasks_v1.yaml` to `tasks_v4.yaml` (each later file only adds conditions).
+Pre-registration: [`prereg/PREREGISTRATION.md`](prereg/PREREGISTRATION.md) (v1), [`ADDENDUM_v2.md`](prereg/ADDENDUM_v2.md), [`ADDENDUM_v3.md`](prereg/ADDENDUM_v3.md), [`ADDENDUM_v4.md`](prereg/ADDENDUM_v4.md); departures in [`prereg/DEVIATIONS.md`](prereg/DEVIATIONS.md); freeze commits on branches `prereg-v1` to `prereg-v4`; hashes in `prereg/HASHES.txt`. Task files: `prereg/tasks_v1.yaml` to `tasks_v4.yaml` (each later file only adds conditions). Raw logs of every stage: `data/results_raw.tar.xz` (see `data/README.md`).
 
 ## Layout
 
@@ -26,15 +26,20 @@ osar/score.py        logs -> effects.csv, rollouts.csv
 osar/analyze.py      v1: bootstrap CIs, framing and model contrasts, figures
 osar/analyze_v2.py   v2: H4-H7            osar/analyze_v3.py  v3: H8-H11      osar/analyze_v4.py  v4: H12-H13, outcomes
 osar/disclose.py     disclosure scorer (keyword rule + judge)    osar/disclose_v4.py  same for the v4 arms
+osar/handcheck.py    the 40-case hand check of the two disclosure scorers
 osar/categories.py   probe/exec split and the four categories of consequential effects (shared)
 osar/refine.py       exploratory re-reporting of v1-v3 with those categories
+osar/sensitivity.py  H7, H9, H10 with real-change outcomes (exploratory)
 osar/explore*.py     exploratory checks per stage (added after the freezes, see prereg/DEVIATIONS.md)
 osar/integrate.py    per-task forest plot, mixed model, consolidated H1-H13 table
 osar/rater.py        model-based second rater for the coding sheet (supplementary)
 osar/kappa.py        blind coding sheet export + Cohen's kappa      osar/packet.py  the v1-v4 rater packet
+osar/make_key.py     regenerates the coding-sheet answer keys (kept out of git) from committed data
 osar/plan.py         sample size per cell and budget table           osar/pricing.py  list prices for the ledger
 tests/               sandbox, shell, rubric, adapter (fake client), conditions and analysis tests
 paper/               LaTeX source, figures, tables and the PDF
+data/                compressed raw rollout logs
+notes/               my working notes
 ```
 
 ## Reproduce
