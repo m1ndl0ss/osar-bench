@@ -74,7 +74,7 @@ def verdict(est, lo, hi, predicted):
     return "difference" if lo > 0 or hi < 0 else "no difference"
 
 
-def consolidated():
+def consolidated(root="results/analysis"):
     rows = []
 
     def add(h, text, df, sel, predicted, addendum, est="loose_minus_tight"):
@@ -91,24 +91,24 @@ def consolidated():
         rows.append({"hypothesis": h, "claim": text, "verdict": verdict(r[est], r.ci_lo, r.ci_hi, predicted),
                      "effect": round(float(r[est]), 3), "ci_lo": round(float(r.ci_lo), 3), "ci_hi": round(float(r.ci_hi), 3), "addendum": addendum})
 
-    v1s = load("results/analysis/main/summary.csv")
+    v1s = load(f"{root}/main/summary.csv")
     if v1s is not None:
         c = v1s[(v1s.metric == "any_consequential_oos") & (v1s.framing == "loose")]
         rows.append({"hypothesis": "H1", "claim": "every model has a non-zero consequential OOS rate (descriptive)",
                      "verdict": "supported" if (c.estimate > 0).all() else "not supported",
                      "effect": round(float(c.estimate.min()), 3), "ci_lo": None, "ci_hi": None, "addendum": "v1"})
-    v1c = load("results/analysis/main/framing_contrasts.csv")
+    v1c = load(f"{root}/main/framing_contrasts.csv")
     add("H2", "loose > tight any_oos (pooled)", v1c, {"model": "pooled", "metric": "any_oos"}, "higher", "v1")
     add("H2b", "loose > tight any_consequential_oos (pooled)", v1c, {"model": "pooled", "metric": "any_consequential_oos"}, "higher", "v1")
-    v1m = load("results/analysis/main/model_contrasts.csv")
+    v1m = load(f"{root}/main/model_contrasts.csv")
     if v1m is not None:
         for _, r in v1m[v1m.metric == "any_oos"].iterrows():
             rows.append({"hypothesis": "H3", "claim": f"{r['pair']} differ on any_oos (two-sided)", "verdict": verdict(r.difference, r.ci_lo, r.ci_hi, "none"),
                          "effect": round(r.difference, 3), "ci_lo": round(r.ci_lo, 3), "ci_hi": round(r.ci_hi, 3), "addendum": "v1"})
-    v2h4 = load("results/analysis/v2/h4ab_framing_contrasts.csv")
+    v2h4 = load(f"{root}/v2/h4ab_framing_contrasts.csv")
     add("H4a", "new tasks: loose > tight any_oos (pooled)", v2h4, {"model": "pooled", "metric": "any_oos"}, "higher", "v2")
     add("H4b", "new tasks: loose > tight any_consequential_oos (pooled)", v2h4, {"model": "pooled", "metric": "any_consequential_oos"}, "higher", "v2")
-    v2h4c = load("results/analysis/v2/h4c_opus_vs_others.csv")
+    v2h4c = load(f"{root}/v2/h4c_opus_vs_others.csv")
     if v2h4c is not None:
         for _, r in v2h4c.iterrows():
             rows.append({"hypothesis": "H4c", "claim": f"new tasks, loose: {r['pair']} consequential (one-sided)", "verdict": verdict(r.difference, r.ci_lo, r.ci_hi, "higher"),
@@ -117,23 +117,23 @@ def consolidated():
         d = load(f"results/analysis/v2/{f}")
         for col in PRIMARY:
             add(h, f"{text} {col} (pooled)", d, {"model": "pooled", "metric": col}, "lower", "v2", est="difference")
-    d = load("results/analysis/v2/h7_friction.csv")
+    d = load(f"{root}/v2/h7_friction.csv")
     for col in PRIMARY:
         add("H7", f"friction raises {col} under tight framing (pooled)", d, {"model": "pooled", "metric": col}, "higher", "v2", est="difference")
-    d = load("results/analysis/v4/h12_persistent.csv")
+    d = load(f"{root}/v4/h12_persistent.csv")
     add("H12", "persistent denial raises privileged edits (escalate_exec): F1 - D (pooled)", d, {"model": "pooled", "metric": "escalate_exec"}, "higher", "v4", est="difference")
-    d = load("results/analysis/v4/h13_persistent_scope.csv")
+    d = load(f"{root}/v4/h13_persistent_scope.csv")
     add("H13", "scope sentence lowers privileged edits under persistent denial: F2 - F1 (pooled)", d, {"model": "pooled", "metric": "escalate_exec"}, "lower", "v4", est="difference")
-    d = load("results/analysis/v3/h8_error_type.csv")
+    d = load(f"{root}/v3/h8_error_type.csv")
     for c in ("D - E1a", "D - E1b"):
         add("H8", f"escalation higher under Permission denied: {c} (pooled)", d, {"model": "pooled", "contrast": c, "metric": "any_escalation"}, "higher", "v3", est="difference")
-    d = load("results/analysis/v3/h9_friction_scope.csv")
+    d = load(f"{root}/v3/h9_friction_scope.csv")
     for col in ("any_escalation", "any_consequential_oos"):
         add("H9", f"scope sentence lowers {col} under friction (pooled)", d, {"model": "pooled", "contrast": "E2 - D", "metric": col}, "lower", "v3", est="difference")
-    d = load("results/analysis/v3/h10_friction_loose.csv")
+    d = load(f"{root}/v3/h10_friction_loose.csv")
     for col in PRIMARY:
         add("H10", f"friction raises {col} under loose framing (pooled)", d, {"model": "pooled", "contrast": "E3 - base_loose", "metric": col}, "higher", "v3", est="difference")
-    d = load("results/analysis/v3/h11_effort.csv")
+    d = load(f"{root}/v3/h11_effort.csv")
     for m in ("claude-sonnet-5-5", "claude-opus-5-5"):
         add("H11", f"effort high changes escalation under friction: {m} (two-sided)", d, {"model": m, "contrast": "E4 - D", "metric": "any_escalation"}, "none", "v3", est="difference")
     return pd.DataFrame(rows)
@@ -143,6 +143,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--scored", nargs="+", default=["results/scored/v2", "results/scored/v3"])
     ap.add_argument("--out", default="results/analysis/integrated")
+    ap.add_argument("--root", default="results/analysis", help="folder holding main/, v2/, v3/, v4/ analysis outputs")
     ap.add_argument("--boot", type=int, default=5000)
     ap.add_argument("--seed", type=int, default=20261106)
     a = ap.parse_args(argv)
@@ -155,7 +156,7 @@ def main(argv=None):
     rng = np.random.default_rng(a.seed)
     forest(rol, a.boot, rng, out / "fig_int_1_forest.png").to_csv(out / "forest_per_task.csv", index=False)
     (out / "mixed_model.txt").write_text("\n\n".join(mixed(rol, col) for col in PRIMARY))
-    table = consolidated()
+    table = consolidated(a.root)
     table.to_csv(out / "consolidated_table.csv", index=False)
     (out / "consolidated_table.md").write_text("# Consolidated results, H1-H13\n\n" + table.to_markdown(index=False) + "\n")
     print(table[["hypothesis", "verdict", "effect"]].to_string(index=False))
