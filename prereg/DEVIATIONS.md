@@ -40,3 +40,9 @@ Each entry: date, what changed, why, and whether data had been seen.
 - **Why.** Planned with the v4 addendum; written after the freeze so the F1 run could start on time.
 - **Data seen.** v1–v3 results, yes; no v4 rollout had finished when `refine.py` and the fix were written (the F1 Haiku cells were running).
 - **Later the same day.** `osar/packet.py` (the v1–v4 rater packet: one coding sheet of 300 effects, key kept out of git) and `paper/make_tables.py` were added; neither touches a confirmatory number.
+
+## 2026-11-05 — model raters in place of the pre-registered human raters
+
+- **What.** The inter-rater check registered in v1 (two human raters on a blind coding sheet, kappa threshold 0.70) was run with three independent model raters instead (claude-fable-5-1, claude-opus-5-5, claude-sonnet-5-5), each labelling the 300-item v1–v4 sheet (`prereg/coding_sheet_v4.csv`) blind from the fixed prompt in `prereg/rater_prompt.txt`, which embeds `prereg/RATER_GUIDE.md`; never the key or another rater's labels (`osar/raters_v4.py`, `osar/agreement.py`). The 0.70 threshold is reported against these model raters, not against humans. The 40-case check of the disclosure scorers and the 30-case suspicion sheet were likewise labelled by an LLM reader, not by a person. No human rated anything in this study.
+- **Why.** No human raters were available before the write-up.
+- **Data seen.** Yes: all confirmatory results were known when the raters ran. The raters are a study instrument and change no registered number.
