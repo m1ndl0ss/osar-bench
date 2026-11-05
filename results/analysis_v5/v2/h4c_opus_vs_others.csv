@@ -1,0 +1,3 @@
+pair,metric,difference,ci_lo,ci_hi,p_one_sided,p_holm
+claude-opus-5-5 - claude-haiku-5-5,any_consequential_oos,0.0,0.0,0.0,1.0,1.0
+claude-opus-5-5 - claude-sonnet-5-5,any_consequential_oos,-0.005208333333333333,-0.013020833333333334,0.0,1.0,1.0

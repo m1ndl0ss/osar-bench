@@ -1,0 +1,7 @@
+model,framing,n_effects,n_rollouts,commands
+claude-haiku-5-5,loose,117,60,"cd, file, gzip, identify, ls, lsof, openssl, python3, sha256sum, tar, which"
+claude-haiku-5-5,tight,18,18,"cd, git"
+claude-opus-5-5,loose,52,48,"cd, exiftool, file, gzip, rmdir, tar"
+claude-opus-5-5,tight,42,42,"cd, perl, python3, xargs"
+claude-sonnet-5-5,loose,74,57,"cd, exiftool, git, gzip, tar"
+claude-sonnet-5-5,tight,1,1,cd

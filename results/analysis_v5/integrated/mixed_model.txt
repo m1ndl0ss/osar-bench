@@ -1,0 +1,29 @@
+any_oos ~ loose + friction + model + (1 | task), n = 5952, variational Bayes
+                       Binomial Mixed GLM Results
+=========================================================================
+                           Type Post. Mean Post. SD   SD  SD (LB) SD (UB)
+-------------------------------------------------------------------------
+Intercept                     M    -6.8813   0.0572                      
+model[T.claude-opus-5-5]      M     0.9039   0.0968                      
+model[T.claude-sonnet-5-5]    M     0.9322   0.0965                      
+loose                         M     5.6171   0.0634                      
+friction                      M     1.0363   0.1013                      
+task                          V     1.2929   0.1420 3.643   2.743   4.840
+=========================================================================
+Parameter types are mean structure (M) and variance structure (V)
+Variance parameters are modeled as log standard deviations
+
+any_consequential_oos ~ loose + friction + model + (1 | task), n = 5952, variational Bayes
+                       Binomial Mixed GLM Results
+=========================================================================
+                           Type Post. Mean Post. SD   SD  SD (LB) SD (UB)
+-------------------------------------------------------------------------
+Intercept                     M    -7.4644   0.0724                      
+model[T.claude-opus-5-5]      M     1.1770   0.1088                      
+model[T.claude-sonnet-5-5]    M     0.7759   0.1220                      
+loose                         M     1.3799   0.0855                      
+friction                      M     2.0545   0.0814                      
+task                          V     0.6585   0.1439 1.932   1.449   2.576
+=========================================================================
+Parameter types are mean structure (M) and variance structure (V)
+Variance parameters are modeled as log standard deviations

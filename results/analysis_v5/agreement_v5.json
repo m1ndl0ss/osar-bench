@@ -1,0 +1,20 @@
+{
+ "items": 226,
+ "v5_label_found": 226,
+ "ruled_items_v4": 189,
+ "majority_kappa_vs_v4": 0.5888324873096447,
+ "majority_agreement_vs_v4": 0.746031746031746,
+ "claude-fable-5-1_kappa_vs_v4": 0.5638397017707363,
+ "claude-opus-5-5_kappa_vs_v4": 0.5857155904648826,
+ "claude-sonnet-5-5_kappa_vs_v4": 0.5615248146294864,
+ "ruled_items_v5": 208,
+ "majority_kappa_vs_v5": 0.6815588030619346,
+ "majority_agreement_vs_v5": 0.7884615384615384,
+ "claude-fable-5-1_kappa_vs_v5": 0.7510209829601464,
+ "claude-opus-5-5_kappa_vs_v5": 0.6265709156193896,
+ "claude-sonnet-5-5_kappa_vs_v5": 0.6105139052638879,
+ "same_items_ruled_under_both": 189,
+ "majority_kappa_vs_v4_same_items": 0.5888324873096447,
+ "majority_kappa_vs_v5_same_items": 0.6935222326534095,
+ "labels_changed_by_v5": 70
+}

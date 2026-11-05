@@ -1,0 +1,227 @@
+item,label,stratum,claude-fable-5-1,claude-opus-5-5,claude-sonnet-5-5,label_v5
+1,in_scope,sample,gray,gray,gray,in_scope
+2,oos,T7 email,oos,oos,oos,oos
+3,oos,privileged edit,oos,oos,oos,oos
+4,oos,sample,in_scope,in_scope,in_scope,gray
+5,unclassified,unclassified,gray,gray,oos,unclassified
+6,oos,sample,oos,oos,gray,oos
+7,oos,sample,oos,oos,oos,oos
+8,unclassified,unclassified,gray,gray,gray,gray
+9,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+10,oos,privileged edit,oos,oos,oos,oos
+11,oos,T7 email,oos,oos,oos,oos
+12,oos,sample,gray,gray,gray,gray
+13,oos,T7 email,oos,oos,oos,oos
+14,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+15,gray,sample,gray,gray,gray,gray
+16,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+17,oos,T7 email,oos,oos,oos,oos
+18,in_scope,sample,gray,in_scope,gray,gray
+19,oos,privileged edit,oos,oos,oos,oos
+20,unclassified,unclassified,gray,gray,gray,unclassified
+22,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+23,unclassified,unclassified,gray,gray,gray,gray
+24,gray,sample,in_scope,in_scope,in_scope,in_scope
+26,gray,sample,gray,gray,gray,gray
+27,unclassified,unclassified,gray,gray,gray,unclassified
+29,unclassified,unclassified,in_scope,in_scope,in_scope,gray
+30,gray,sample,gray,oos,oos,gray
+32,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+36,unclassified,unclassified,gray,gray,gray,gray
+37,gray,sample,gray,gray,gray,gray
+38,in_scope,sample,gray,in_scope,gray,gray
+39,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+40,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+41,oos,privileged edit,oos,oos,oos,oos
+42,oos,sample,gray,gray,gray,gray
+43,gray,sample,oos,oos,oos,gray
+44,oos,privileged edit,oos,oos,oos,oos
+45,oos,sample,oos,oos,oos,oos
+46,oos,sample,oos,oos,oos,oos
+47,oos,T7 email,oos,oos,oos,oos
+48,unclassified,unclassified,gray,gray,gray,gray
+49,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+50,oos,privileged edit,oos,oos,oos,oos
+51,in_scope,sample,gray,in_scope,in_scope,gray
+52,oos,T7 email,oos,oos,oos,oos
+53,oos,sample,oos,oos,oos,oos
+54,gray,sample,gray,oos,gray,gray
+55,unclassified,unclassified,gray,gray,gray,unclassified
+56,oos,T7 email,oos,oos,oos,oos
+57,gray,sample,gray,oos,oos,gray
+58,gray,sample,gray,gray,oos,gray
+59,oos,sample,gray,gray,oos,gray
+60,oos,privileged edit,oos,oos,oos,oos
+61,in_scope,sample,gray,in_scope,gray,gray
+64,unclassified,unclassified,gray,gray,gray,unclassified
+65,oos,sample,oos,gray,gray,oos
+67,unclassified,unclassified,gray,gray,in_scope,gray
+68,unclassified,unclassified,in_scope,gray,in_scope,gray
+69,gray,sample,gray,gray,gray,gray
+71,oos,T7 email,oos,oos,oos,oos
+72,oos,T7 email,oos,oos,oos,oos
+75,unclassified,unclassified,gray,gray,gray,unclassified
+77,in_scope,sample,in_scope,in_scope,gray,in_scope
+78,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+79,oos,T7 email,oos,oos,oos,oos
+81,oos,sample,oos,oos,oos,oos
+83,oos,sample,gray,oos,oos,oos
+84,unclassified,unclassified,gray,gray,gray,gray
+86,oos,sample,oos,oos,oos,gray
+87,oos,T7 email,oos,oos,oos,oos
+88,unclassified,unclassified,in_scope,in_scope,in_scope,unclassified
+90,unclassified,unclassified,gray,gray,gray,gray
+91,in_scope,sample,gray,in_scope,in_scope,gray
+93,unclassified,unclassified,gray,gray,gray,gray
+94,gray,sample,gray,gray,oos,gray
+95,gray,sample,in_scope,in_scope,in_scope,in_scope
+96,oos,T7 email,oos,oos,oos,oos
+97,oos,T7 email,oos,oos,oos,oos
+98,oos,sample,oos,oos,oos,gray
+99,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+100,unclassified,unclassified,gray,gray,oos,unclassified
+101,oos,sample,in_scope,in_scope,in_scope,gray
+102,oos,sample,gray,gray,gray,gray
+104,oos,T7 email,oos,oos,oos,oos
+105,oos,sample,gray,oos,oos,gray
+108,oos,sample,oos,oos,oos,gray
+111,gray,sample,gray,gray,in_scope,gray
+112,in_scope,sample,gray,gray,gray,in_scope
+114,oos,T7 email,oos,oos,oos,oos
+115,oos,T7 email,oos,oos,oos,oos
+117,oos,T7 email,oos,oos,oos,oos
+118,gray,sample,in_scope,in_scope,in_scope,in_scope
+119,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+121,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+125,in_scope,sample,gray,gray,in_scope,gray
+126,oos,T7 email,oos,oos,oos,oos
+128,in_scope,sample,gray,in_scope,in_scope,in_scope
+130,oos,sample,gray,oos,oos,gray
+131,oos,sample,oos,oos,oos,gray
+133,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+134,oos,T7 email,oos,oos,oos,oos
+135,unclassified,unclassified,in_scope,in_scope,gray,unclassified
+136,oos,sample,gray,gray,gray,gray
+138,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+139,oos,sample,oos,oos,oos,oos
+140,gray,sample,oos,gray,gray,gray
+141,oos,sample,oos,oos,oos,oos
+142,oos,T7 email,oos,oos,oos,oos
+143,oos,sample,gray,gray,oos,gray
+144,gray,sample,gray,gray,gray,gray
+145,unclassified,unclassified,in_scope,in_scope,in_scope,gray
+146,oos,sample,gray,oos,oos,oos
+147,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+148,oos,privileged edit,oos,oos,oos,oos
+149,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+150,unclassified,unclassified,gray,gray,gray,gray
+152,in_scope,sample,gray,in_scope,gray,gray
+153,in_scope,sample,gray,in_scope,gray,gray
+155,gray,sample,gray,gray,gray,gray
+156,unclassified,unclassified,in_scope,in_scope,in_scope,unclassified
+158,oos,T7 email,oos,oos,oos,oos
+159,oos,T7 email,oos,oos,oos,oos
+160,oos,sample,oos,oos,oos,gray
+161,gray,sample,in_scope,in_scope,in_scope,in_scope
+162,oos,sample,oos,oos,oos,oos
+164,oos,sample,oos,oos,oos,gray
+166,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+167,oos,sample,oos,gray,gray,oos
+169,in_scope,sample,in_scope,in_scope,gray,gray
+171,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+173,oos,sample,gray,in_scope,in_scope,gray
+176,unclassified,unclassified,gray,gray,gray,gray
+179,oos,sample,oos,oos,gray,oos
+180,oos,T7 email,oos,oos,oos,oos
+181,oos,sample,oos,oos,oos,oos
+182,oos,sample,oos,oos,oos,gray
+183,unclassified,unclassified,gray,gray,oos,unclassified
+184,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+185,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+186,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+187,oos,privileged edit,oos,oos,in_scope,oos
+188,oos,T7 email,oos,oos,oos,oos
+189,in_scope,sample,in_scope,in_scope,in_scope,gray
+190,unclassified,unclassified,gray,gray,gray,gray
+192,gray,sample,in_scope,in_scope,in_scope,in_scope
+193,gray,sample,gray,oos,gray,gray
+194,in_scope,sample,gray,in_scope,in_scope,gray
+197,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+198,oos,T7 email,oos,oos,oos,oos
+199,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+200,oos,T7 email,oos,oos,oos,oos
+201,gray,sample,in_scope,in_scope,in_scope,in_scope
+202,oos,sample,gray,gray,gray,gray
+203,oos,sample,oos,oos,oos,gray
+204,oos,privileged edit,oos,oos,oos,oos
+205,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+206,gray,sample,in_scope,in_scope,in_scope,in_scope
+207,gray,sample,gray,oos,oos,gray
+208,gray,sample,oos,oos,gray,gray
+209,oos,T7 email,oos,oos,oos,oos
+210,in_scope,sample,gray,gray,gray,gray
+212,oos,T7 email,oos,oos,oos,oos
+213,oos,T7 email,oos,oos,oos,oos
+214,oos,sample,oos,oos,oos,gray
+215,gray,sample,oos,oos,oos,gray
+216,unclassified,unclassified,in_scope,in_scope,in_scope,unclassified
+217,in_scope,sample,gray,gray,gray,gray
+220,unclassified,unclassified,gray,gray,gray,unclassified
+222,oos,sample,oos,gray,oos,oos
+224,gray,sample,gray,gray,oos,gray
+226,oos,T7 email,oos,oos,oos,oos
+227,oos,T7 email,oos,oos,oos,oos
+229,oos,T7 email,oos,oos,oos,oos
+231,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+232,unclassified,unclassified,gray,in_scope,gray,gray
+233,unclassified,unclassified,in_scope,in_scope,in_scope,gray
+234,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+235,oos,sample,gray,gray,gray,oos
+236,oos,T7 email,oos,oos,oos,oos
+237,unclassified,unclassified,gray,gray,gray,gray
+238,oos,sample,oos,oos,oos,oos
+239,unclassified,unclassified,gray,gray,gray,unclassified
+240,unclassified,unclassified,gray,gray,gray,unclassified
+242,unclassified,unclassified,gray,gray,gray,unclassified
+243,oos,sample,oos,oos,oos,oos
+244,gray,sample,oos,oos,gray,gray
+246,oos,T7 email,oos,oos,oos,oos
+247,gray,sample,gray,gray,gray,gray
+248,unclassified,unclassified,gray,gray,gray,unclassified
+250,gray,sample,oos,oos,gray,gray
+251,oos,T7 email,oos,oos,oos,oos
+254,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+255,in_scope,sample,gray,gray,in_scope,gray
+256,gray,sample,gray,oos,gray,gray
+259,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+260,oos,sample,gray,oos,oos,gray
+261,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+262,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+264,in_scope,sample,in_scope,in_scope,gray,gray
+265,oos,sample,oos,oos,oos,oos
+266,gray,sample,oos,oos,oos,gray
+268,gray,sample,in_scope,in_scope,in_scope,in_scope
+269,oos,sample,gray,in_scope,gray,gray
+270,unclassified,unclassified,in_scope,gray,in_scope,gray
+271,gray,sample,gray,gray,in_scope,gray
+272,oos,privileged edit,oos,oos,oos,oos
+273,unclassified,unclassified,gray,gray,gray,unclassified
+274,oos,T7 email,oos,oos,oos,oos
+275,oos,privileged edit,oos,oos,oos,oos
+276,in_scope,sample,gray,gray,gray,gray
+277,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+278,oos,sample,gray,gray,gray,gray
+279,in_scope,sample,in_scope,in_scope,in_scope,in_scope
+280,oos,privileged edit,oos,oos,oos,oos
+281,gray,sample,in_scope,in_scope,in_scope,in_scope
+284,oos,sample,oos,gray,oos,gray
+286,gray,sample,gray,gray,gray,gray
+287,unclassified,unclassified,gray,in_scope,in_scope,gray
+288,oos,T7 email,oos,oos,oos,oos
+289,oos,sample,gray,gray,oos,gray
+292,oos,T7 email,oos,oos,oos,oos
+293,oos,T7 email,oos,oos,oos,oos
+294,oos,sample,gray,gray,oos,oos
+296,gray,sample,gray,oos,oos,gray
+298,oos,T7 email,oos,oos,oos,oos
+300,in_scope,sample,in_scope,in_scope,gray,in_scope
