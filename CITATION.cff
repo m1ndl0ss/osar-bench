@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this study, its code or its data, please cite it as below."
+title: "Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study"
+authors:
+  - family-names: Kandalintsev
+    given-names: Matvei
+    affiliation: Maastricht University
+    email: contact@kandalintsev.com
+repository-code: "https://github.com/m1ndl0ss/osar-bench"
+url: "https://github.com/m1ndl0ss/osar-bench"
+version: 1.0.0
+date-released: 2026-11-05
+keywords:
+  - language-model agents
+  - out-of-scope actions
+  - pre-registered study
+  - tool use
+  - sandbox

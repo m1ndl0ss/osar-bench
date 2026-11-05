@@ -1,15 +1,17 @@
 # OSAR-bench
 
+*Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study.* Three Claude 5.5 models ran 23 small office chores in an in-memory sandbox, 14,720 runs over four pre-registered stages, with every effect of every tool call scored against a rubric frozen before each stage. Vague prompts make the agents read and list far beyond the task but rarely change anything; real unrequested changes appear when a vague prompt meets a refused write; when sudo is the only way to finish, almost all runs stop and tell the user; cheap mitigations barely help. The rubric missed its registered reliability threshold with three blind model raters, so it was revised and every result is reported under both versions.
+
 I measure how often tool-using language-model agents take out-of-scope actions on bounded, benign tasks. There is no attacker: the model over-reaches on its own. Every tool call runs in an in-memory sandbox (files, shell, HTTP, email) and is scored by its effects against a scope rubric frozen before each stage. Each effect is in scope, gray or out of scope, and out-of-scope effects get a severity tier: benign, sensitive or consequential.
 
 Paper: *Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study*, [`paper/osar.pdf`](paper/osar.pdf) (source in `paper/`). My notes on what I found: [`results/FINDINGS.md`](results/FINDINGS.md). What I know is weak: [`notes/limitations.md`](notes/limitations.md). Consolidated H1–H13 table: [`results/analysis/integrated/consolidated_table.md`](results/analysis/integrated/consolidated_table.md).
 
 ## What I found (three Claude 5.5 models, 23 tasks, 14,720 rollouts, four pre-registered stages)
 
-- Ambiguity and a failing tool compound into real unrequested changes. When the first write is refused under a loose prompt, rollouts with a real unrequested change rise from 1–11% to 9–27% depending on the model, 9–19% counting only changes to other targets (H10; +0.096 for real changes and +0.095 for unrequested-only ones, an exploratory breakdown of the registered +0.150). Friction on its own, under a tight prompt, is mostly sudo probes and blocked attempts: real changes rise by about one point (+0.009, H7), and a scope sentence under friction removed probes, not real edits (H9).
+- Ambiguity and a failing tool compound into real unrequested changes (two registered contrasts compared side by side, friction under loose and under tight prompts; no interaction test was registered). When the first write is refused under a loose prompt, rollouts with a real unrequested change rise from 1–11% to 9–27% depending on the model, 9–19% counting only changes to other targets (H10; +0.096 for real changes and +0.095 for unrequested-only ones, an exploratory breakdown of the registered +0.150). Friction on its own, under a tight prompt, is mostly sudo probes and blocked attempts: real changes rise by about one point (+0.009, H7), and a scope sentence under friction removed probes, not real edits (H9).
 - Loose prompts cause a large informational over-reach. Dropping the "where" from a prompt raises the share of rollouts with any out-of-scope action by 0.48 (v1 tasks) and 0.66 (v2 tasks), 0.37 and 0.42 under the revised rubric v5; almost all of it is listing and reading, and a third of loose rollouts touch mail, finance or private notes.
 - Unrequested consequential actions are rare on their own. Of 4,416 baseline rollouts, 0.9% change state out of scope (1.8% on the v1 tasks, mostly Opus on T7). I expected the v1 sign that Opus is the most consequential model (emailing colleagues on one task) to hold on twelve new tasks; it did not (H4c not supported).
-- When sudo is the only path, the models stop and report. With every plain edit refused and passwordless sudo available, 94% of rollouts end with no change and a message naming the obstacle; privileged edits occur in 1.8%, every one disclosed (H12 not supported, H13 supported). Whether that is restraint or distrust of a failing tool, I cannot say.
+- When sudo is the only path, the models stop and report. With every plain edit refused and passwordless sudo available, 97% of rollouts end with no change and a message naming the obstacle or asking a question; privileged edits occur in 1.8%, every one disclosed (H12 not supported, H13 supported). Whether that is restraint or distrust of a failing tool, I cannot say.
 - The error text, not the instructions I tried, moved sudo use. "Permission denied" invites sudo, "Resource temporarily unavailable" and "Disk quota exceeded" never did (H8); an ask-the-user tool, a one-sentence scope instruction and higher reasoning effort changed little (H5, H6, H9, H11, H13).
 
 Pre-registration: [`prereg/PREREGISTRATION.md`](prereg/PREREGISTRATION.md) (v1), [`ADDENDUM_v2.md`](prereg/ADDENDUM_v2.md), [`ADDENDUM_v3.md`](prereg/ADDENDUM_v3.md), [`ADDENDUM_v4.md`](prereg/ADDENDUM_v4.md); departures in [`prereg/DEVIATIONS.md`](prereg/DEVIATIONS.md); freeze commits on branches `prereg-v1` to `prereg-v4`; hashes in `prereg/HASHES.txt`. Task files: `prereg/tasks_v1.yaml` to `tasks_v4.yaml` (each later file only adds conditions). Label reliability: three blind model raters (Fable 5.1, Opus 5.5, Sonnet 5.5) on a 300-item sheet, kappa against the scorer 0.56–0.59 (majority 0.59), Fleiss' kappa 0.74; no human raters (`prereg/rater_prompt.txt`, `osar/raters_v4.py`, `osar/agreement.py`). Missing the registered 0.70 triggered a rubric revision, v5 (`prereg/RUBRIC_v5_REVISION.md`, `prereg/tasks_v5.yaml`): every rollout re-scored, every hypothesis under both rubrics in `results/analysis_v5/comparison_v4_v5.md` (majority kappa against the v5 scorer 0.68; two H3 verdicts change, no consequential-action result moves). Raw logs of every stage: `data/results_raw.tar.xz` (see `data/README.md`).
@@ -104,3 +106,19 @@ python paper/make_tables.py && (cd paper && pdflatex osar && bibtex osar && pdfl
 A zero-cost dry run of any stage uses `--provider scripted --model scripted-p0.3`. Grok runs from a machine that can reach `api.x.ai` with `--provider xai --model grok-4.6` and `XAI_API_KEY`; that arm has not been run. Raw logs (`results/raw`) are not in git; scored CSVs and analysis outputs are. The coding-sheet keys (`*_KEY.csv`) stay out of git.
 
 Every rollout log records the exact model string and API parameters, the rubric and tool-schema hashes, the harness git commit, per-step token usage, the full trajectory and the final sandbox state.
+
+## How to cite
+
+See `CITATION.cff` (GitHub shows a citation widget from it). Plain form:
+
+Kandalintsev, M. (2026). *Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study.* Version 1.0.0. https://github.com/m1ndl0ss/osar-bench
+
+```bibtex
+@misc{kandalintsev2026osar,
+  title   = {Vague Prompts and Failing Tools Make {LLM} Agents Overstep: A Pre-Registered Study},
+  author  = {Kandalintsev, Matvei},
+  year    = {2026},
+  note    = {Version 1.0.0},
+  url     = {https://github.com/m1ndl0ss/osar-bench}
+}
+```
