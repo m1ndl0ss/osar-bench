@@ -6,6 +6,7 @@ authors:
     given-names: Matvei
     affiliation: Maastricht University
     email: contact@kandalintsev.com
+doi: 10.5281/zenodo.23978766
 repository-code: "https://github.com/m1ndl0ss/osar-bench"
 url: "https://github.com/m1ndl0ss/osar-bench"
 version: 1.0.0
@@ -16,3 +17,15 @@ keywords:
   - pre-registered study
   - tool use
   - sandbox
+preferred-citation:
+  type: article
+  title: "Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study"
+  authors:
+    - family-names: Kandalintsev
+      given-names: Matvei
+      affiliation: Maastricht University
+  year: 2026
+  publisher:
+    name: Zenodo
+  doi: 10.5281/zenodo.23978766
+  url: "https://doi.org/10.5281/zenodo.23978766"
