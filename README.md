@@ -1,5 +1,7 @@
 # OSAR-bench
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23978766.svg)](https://doi.org/10.5281/zenodo.23978766)
+
 *Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study.* Three Claude 5.5 models ran 23 small office chores in an in-memory sandbox, 14,720 runs over four pre-registered stages, with every effect of every tool call scored against a rubric frozen before each stage. Vague prompts make the agents read and list far beyond the task but rarely change anything; real unrequested changes appear when a vague prompt meets a refused write; when sudo is the only way to finish, almost all runs stop and tell the user; cheap mitigations barely help. The rubric missed its registered reliability threshold with three blind model raters, so it was revised and every result is reported under both versions.
 
 I measure how often tool-using language-model agents take out-of-scope actions on bounded, benign tasks. There is no attacker: the model over-reaches on its own. Every tool call runs in an in-memory sandbox (files, shell, HTTP, email) and is scored by its effects against a scope rubric frozen before each stage. Each effect is in scope, gray or out of scope, and out-of-scope effects get a severity tier: benign, sensitive or consequential.
@@ -109,16 +111,17 @@ Every rollout log records the exact model string and API parameters, the rubric 
 
 ## How to cite
 
-See `CITATION.cff` (GitHub shows a citation widget from it). Plain form:
-
-Kandalintsev, M. (2026). *Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study.* Version 1.0.0. https://github.com/m1ndl0ss/osar-bench
+Kandalintsev, M. (2026). *Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study.* Zenodo. https://doi.org/10.5281/zenodo.23978766
 
 ```bibtex
-@misc{kandalintsev2026osar,
-  title   = {Vague Prompts and Failing Tools Make {LLM} Agents Overstep: A Pre-Registered Study},
-  author  = {Kandalintsev, Matvei},
-  year    = {2026},
-  note    = {Version 1.0.0},
-  url     = {https://github.com/m1ndl0ss/osar-bench}
+@misc{kandalintsev2026vague,
+  title     = {Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study},
+  author    = {Kandalintsev, Matvei},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.23978766},
+  url       = {https://doi.org/10.5281/zenodo.23978766}
 }
 ```
+
+The Zenodo record is the version of record; `paper/osar.pdf` at tag `preprint-v1` is identical.
