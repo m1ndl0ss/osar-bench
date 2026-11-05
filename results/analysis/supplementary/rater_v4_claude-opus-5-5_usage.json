@@ -1,0 +1,8 @@
+{
+ "model": "claude-opus-5-5",
+ "temperature": "default (temperature rejected by the API)",
+ "calls": 50,
+ "input": 106397,
+ "output": 16057,
+ "cache_read": 0
+}
