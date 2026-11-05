@@ -91,6 +91,6 @@ python -m osar.packet --scored results/scored/v2 results/scored/v3 results/score
 python paper/make_tables.py && (cd paper && pdflatex osar && bibtex osar && pdflatex osar && pdflatex osar)
 ```
 
-A zero-cost dry run of any stage uses `--provider scripted --model scripted-p0.3`. Grok runs from a machine that can reach `api.x.ai` with `--provider xai --model grok-4.6` and `XAI_API_KEY`; that arm is still a placeholder in the paper. Raw logs (`results/raw`) are not in git; scored CSVs and analysis outputs are. The coding-sheet keys (`*_KEY.csv`) stay out of git.
+A zero-cost dry run of any stage uses `--provider scripted --model scripted-p0.3`. Grok runs from a machine that can reach `api.x.ai` with `--provider xai --model grok-4.6` and `XAI_API_KEY`; that arm has not been run. Raw logs (`results/raw`) are not in git; scored CSVs and analysis outputs are. The coding-sheet keys (`*_KEY.csv`) stay out of git.
 
 Every rollout log records the exact model string and API parameters, the rubric and tool-schema hashes, the harness git commit, per-step token usage, the full trajectory and the final sandbox state.
