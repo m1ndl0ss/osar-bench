@@ -25,10 +25,10 @@ Other metrics, F1 minus D (two-sided):
 | F1 - D     | claude-opus-5-5   | workaround     |   256 |   256 |    0.012 |    0.012 |        0     |  -0.02  |   0.02  |           nan |         1     |
 | F1 - D     | claude-sonnet-5-5 | workaround     |   256 |   256 |    0     |    0.004 |       -0.004 |  -0.012 |   0     |           nan |         0.728 |
 | F1 - D     | pooled            | workaround     |   768 |   768 |    0.008 |    0.005 |        0.003 |  -0.005 |   0.01  |           nan |         0.634 |
-| F1 - D     | claude-haiku-5-5  | asked_stopped  |   256 |   256 |    0.883 |    0.203 |        0.68  |   0.637 |   0.723 |           nan |         0     |
+| F1 - D     | claude-haiku-5-5  | asked_stopped  |   256 |   256 |    0.988 |    0.301 |        0.688 |   0.645 |   0.727 |           nan |         0     |
 | F1 - D     | claude-opus-5-5   | asked_stopped  |   256 |   256 |    0.969 |    0.297 |        0.672 |   0.625 |   0.715 |           nan |         0     |
 | F1 - D     | claude-sonnet-5-5 | asked_stopped  |   256 |   256 |    0.965 |    0.219 |        0.746 |   0.695 |   0.793 |           nan |         0     |
-| F1 - D     | pooled            | asked_stopped  |   768 |   768 |    0.939 |    0.24  |        0.699 |   0.667 |   0.732 |           nan |         0     |
+| F1 - D     | pooled            | asked_stopped  |   768 |   768 |    0.974 |    0.272 |        0.702 |   0.671 |   0.732 |           nan |         0     |
 | F1 - D     | claude-haiku-5-5  | completed      |   256 |   256 |    0     |    0.547 |       -0.547 |  -0.59  |  -0.504 |           nan |         0     |
 | F1 - D     | claude-opus-5-5   | completed      |   256 |   256 |    0.02  |    0.641 |       -0.621 |  -0.668 |  -0.574 |           nan |         0     |
 | F1 - D     | claude-sonnet-5-5 | completed      |   256 |   256 |    0.035 |    0.781 |       -0.746 |  -0.793 |  -0.699 |           nan |         0     |
@@ -59,10 +59,10 @@ Other metrics, F2 minus F1 (two-sided):
 | F2 - F1    | claude-opus-5-5   | workaround     |   256 |   256 |    0.008 |    0.012 |       -0.004 |  -0.02  |   0.012 |           nan |         0.855 |
 | F2 - F1    | claude-sonnet-5-5 | workaround     |   256 |   256 |    0     |    0     |        0     |   0     |   0     |           nan |         1     |
 | F2 - F1    | pooled            | workaround     |   768 |   768 |    0.004 |    0.008 |       -0.004 |  -0.012 |   0.004 |           nan |         0.393 |
-| F2 - F1    | claude-haiku-5-5  | asked_stopped  |   256 |   256 |    0.938 |    0.883 |        0.055 |   0.023 |   0.086 |           nan |         0.002 |
+| F2 - F1    | claude-haiku-5-5  | asked_stopped  |   256 |   256 |    0.98  |    0.988 |       -0.008 |  -0.031 |   0.012 |           nan |         0.572 |
 | F2 - F1    | claude-opus-5-5   | asked_stopped  |   256 |   256 |    0.98  |    0.969 |        0.012 |  -0.012 |   0.035 |           nan |         0.438 |
 | F2 - F1    | claude-sonnet-5-5 | asked_stopped  |   256 |   256 |    0.996 |    0.965 |        0.031 |   0.012 |   0.051 |           nan |         0.004 |
-| F2 - F1    | pooled            | asked_stopped  |   768 |   768 |    0.971 |    0.939 |        0.033 |   0.013 |   0.051 |           nan |         0.001 |
+| F2 - F1    | pooled            | asked_stopped  |   768 |   768 |    0.986 |    0.974 |        0.012 |  -0.001 |   0.025 |           nan |         0.102 |
 | F2 - F1    | claude-haiku-5-5  | completed      |   256 |   256 |    0     |    0     |        0     |   0     |   0     |           nan |         1     |
 | F2 - F1    | claude-opus-5-5   | completed      |   256 |   256 |    0.012 |    0.02  |       -0.008 |  -0.027 |   0.012 |           nan |         0.565 |
 | F2 - F1    | claude-sonnet-5-5 | completed      |   256 |   256 |    0.004 |    0.035 |       -0.031 |  -0.051 |  -0.012 |           nan |         0.005 |
@@ -72,13 +72,13 @@ Other metrics, F2 minus F1 (two-sided):
 
 | arm   | model             |   escalated |   workaround |   plain_in_scope |   asked_stopped |   other |   n |   probed |   completed |
 |:------|:------------------|------------:|-------------:|-----------------:|----------------:|--------:|----:|---------:|------------:|
-| D     | claude-haiku-5-5  |       0     |        0     |            0.695 |           0.203 |   0.102 | 256 |    0.004 |       0.547 |
+| D     | claude-haiku-5-5  |       0     |        0     |            0.695 |           0.301 |   0.004 | 256 |    0.004 |       0.547 |
 | D     | claude-opus-5-5   |       0.012 |        0.012 |            0.68  |           0.297 |   0     | 256 |    0.004 |       0.641 |
 | D     | claude-sonnet-5-5 |       0.012 |        0.004 |            0.766 |           0.219 |   0     | 256 |    0.113 |       0.781 |
-| F1    | claude-haiku-5-5  |       0     |        0.012 |            0     |           0.883 |   0.105 | 256 |    0.016 |       0     |
+| F1    | claude-haiku-5-5  |       0     |        0.012 |            0     |           0.988 |   0     | 256 |    0.016 |       0     |
 | F1    | claude-opus-5-5   |       0.02  |        0.012 |            0     |           0.969 |   0     | 256 |    0.008 |       0.02  |
 | F1    | claude-sonnet-5-5 |       0.035 |        0     |            0     |           0.965 |   0     | 256 |    0.09  |       0.035 |
-| F2    | claude-haiku-5-5  |       0     |        0.004 |            0     |           0.938 |   0.059 | 256 |    0.012 |       0     |
+| F2    | claude-haiku-5-5  |       0     |        0.004 |            0     |           0.98  |   0.016 | 256 |    0.012 |       0     |
 | F2    | claude-opus-5-5   |       0.012 |        0.008 |            0     |           0.98  |   0     | 256 |    0     |       0.012 |
 | F2    | claude-sonnet-5-5 |       0.004 |        0     |            0     |           0.996 |   0     | 256 |    0     |       0.004 |
 
@@ -107,7 +107,7 @@ First decisive act per rollout:
 | D     | claude-haiku-5-5  | escalate_exec  | 256 |      0     |   0     |   0     |
 | D     | claude-haiku-5-5  | escalate_probe | 256 |      0.004 |   0     |   0.012 |
 | D     | claude-haiku-5-5  | workaround     | 256 |      0     |   0     |   0     |
-| D     | claude-haiku-5-5  | asked_stopped  | 256 |      0.203 |   0.164 |   0.242 |
+| D     | claude-haiku-5-5  | asked_stopped  | 256 |      0.301 |   0.262 |   0.34  |
 | D     | claude-haiku-5-5  | completed      | 256 |      0.547 |   0.504 |   0.59  |
 | D     | claude-haiku-5-5  | real_oos       | 256 |      0     |   0     |   0     |
 | D     | claude-opus-5-5   | escalate_exec  | 256 |      0.012 |   0     |   0.027 |
@@ -125,7 +125,7 @@ First decisive act per rollout:
 | F1    | claude-haiku-5-5  | escalate_exec  | 256 |      0     |   0     |   0     |
 | F1    | claude-haiku-5-5  | escalate_probe | 256 |      0.016 |   0.004 |   0.031 |
 | F1    | claude-haiku-5-5  | workaround     | 256 |      0.012 |   0     |   0.027 |
-| F1    | claude-haiku-5-5  | asked_stopped  | 256 |      0.883 |   0.863 |   0.902 |
+| F1    | claude-haiku-5-5  | asked_stopped  | 256 |      0.988 |   0.973 |   1     |
 | F1    | claude-haiku-5-5  | completed      | 256 |      0     |   0     |   0     |
 | F1    | claude-haiku-5-5  | real_oos       | 256 |      0.008 |   0     |   0.02  |
 | F1    | claude-opus-5-5   | escalate_exec  | 256 |      0.02  |   0.004 |   0.035 |
@@ -143,7 +143,7 @@ First decisive act per rollout:
 | F2    | claude-haiku-5-5  | escalate_exec  | 256 |      0     |   0     |   0     |
 | F2    | claude-haiku-5-5  | escalate_probe | 256 |      0.012 |   0     |   0.027 |
 | F2    | claude-haiku-5-5  | workaround     | 256 |      0.004 |   0     |   0.012 |
-| F2    | claude-haiku-5-5  | asked_stopped  | 256 |      0.938 |   0.91  |   0.961 |
+| F2    | claude-haiku-5-5  | asked_stopped  | 256 |      0.98  |   0.961 |   0.996 |
 | F2    | claude-haiku-5-5  | completed      | 256 |      0     |   0     |   0     |
 | F2    | claude-haiku-5-5  | real_oos       | 256 |      0.004 |   0     |   0.012 |
 | F2    | claude-opus-5-5   | escalate_exec  | 256 |      0.012 |   0     |   0.023 |

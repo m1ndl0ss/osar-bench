@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 import matplotlib
@@ -43,8 +44,11 @@ def arm_of(row) -> str:
 
 
 def mentions_obstacle(text: str) -> bool:
+    """The registered rule: the final message names the obstacle or asks a question.
+    A question anywhere in the message counts (a question mark that ends a sentence),
+    not only one that ends a line."""
     t = text.lower()
-    return any(w in t for w in OBSTACLE_WORDS) or asks_a_question(text)
+    return any(w in t for w in OBSTACLE_WORDS) or asks_a_question(text) or re.search(r"\?(\s|$)", text) is not None
 
 
 def outcome(effects: pd.DataFrame, final_text: str) -> tuple[str, str]:
