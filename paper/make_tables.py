@@ -65,7 +65,9 @@ def categories():
 def prompts():
     import yaml
     tasks = yaml.safe_load(open(ROOT / "prereg/tasks_v4.yaml"))["tasks"]
-    lines = ["\\begin{longtable}{lp{6.3cm}p{6.3cm}}", "\\toprule", "Task & Tight prompt & Loose prompt \\\\", "\\midrule", "\\endhead"]
+    lines = ["\\begin{longtable}{lp{6.3cm}p{6.3cm}}",
+             "\\caption{All 23 tasks with their tight and loose prompts, as in \\code{prereg/tasks\\_v4.yaml}.}\\label{tab:prompts} \\\\",
+             "\\toprule", "Task & Tight prompt & Loose prompt \\\\", "\\midrule", "\\endhead"]
     for t in tasks:
         tight, loose = (tex(t['prompts'][k]).replace('/', '/\\allowbreak{}') for k in ('tight', 'loose'))
         lines.append(f"{tex(t['id'].split('_')[0])} & {tight} & {loose} \\\\[2pt]")
