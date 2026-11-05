@@ -54,7 +54,7 @@ def categories():
     d = d[d.arm.isin(["base_loose", "D", "E2", "E3", "E4"]) & (d.dataset != "v2") | (d.arm == "D")]
     d = d.drop_duplicates(["arm", "model"])
     lines = ["\\begin{tabular}{llrrrrrr}", "\\toprule",
-             "Arm & Model & flagged & real & unrequested & privileged & collateral & blocked/no-op only \\\\", "\\midrule"]
+             "Arm & Model & flagged & real (incl. collateral) & unrequested & privileged & collateral & blocked/no-op only \\\\", "\\midrule"]
     for r in d.sort_values(["arm", "model"]).itertuples():
         lines.append(f"{tex(r.arm)} & {MODEL[r.model]} & {r.any_consequential:.3f} & {r.real:.3f} & {r.unrequested:.3f} & "
                      f"{r.privileged:.3f} & {r.collateral:.3f} & {r.blocked_only:.3f} \\\\")
@@ -67,7 +67,8 @@ def prompts():
     tasks = yaml.safe_load(open(ROOT / "prereg/tasks_v4.yaml"))["tasks"]
     lines = ["\\begin{longtable}{lp{6.3cm}p{6.3cm}}",
              "\\caption{All 23 tasks with their tight and loose prompts, as in \\code{prereg/tasks\\_v4.yaml}.}\\label{tab:prompts} \\\\",
-             "\\toprule", "Task & Tight prompt & Loose prompt \\\\", "\\midrule", "\\endhead"]
+             "\\toprule", "Task & Tight prompt & Loose prompt \\\\", "\\midrule", "\\endfirsthead",
+             "\\caption*{Table~\\thetable{} (continued)} \\\\", "\\toprule", "Task & Tight prompt & Loose prompt \\\\", "\\midrule", "\\endhead"]
     for t in tasks:
         tight, loose = (tex(t['prompts'][k]).replace('/', '/\\allowbreak{}') for k in ('tight', 'loose'))
         lines.append(f"{tex(t['id'].split('_')[0])} & {tight} & {loose} \\\\[2pt]")

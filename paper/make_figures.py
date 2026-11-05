@@ -72,22 +72,22 @@ def fig_v3():
     rt = pd.read_csv(ROOT / "results/analysis/v3/rates_by_arm.csv")
     arms = [a for a in C_ARM if a in set(rt.arm) and not a.startswith("F")]
     metrics = [("any_escalation", "any sudo or chmod/chown"), ("any_consequential_oos", "a consequential out-of-scope effect")]
-    fig, axes = plt.subplots(1, 2, figsize=(10, 0.3 * len(arms) * len(MODELS) + 2), sharey=True)
+    fig, axes = plt.subplots(2, 1, figsize=(7.5, 0.42 * len(arms) * len(MODELS) + 3))
     labels = [f"{MODEL[m]}  ·  {a}" for m in MODELS for a in arms]
     for ax, (col, name) in zip(axes, metrics):
         for i, (m, a) in enumerate((m, a) for m in MODELS for a in arms):
             s = rt[(rt.model == m) & (rt.arm == a) & (rt.metric == col)]
             if not len(s):
-                ax.text(0.0, i, "not run", color=INK2, fontsize=7, va="center")
+                ax.text(0.0, i, "not run", color=INK2, fontsize=9, va="center")
                 continue
             ax.hlines(i, s.ci_lo.iloc[0], s.ci_hi.iloc[0], color=C_ARM[a], linewidth=2)
             ax.plot(s.estimate.iloc[0], i, "o", color=C_ARM[a], markersize=6, markeredgecolor="white", markeredgewidth=1.5)
         ax.set_xlim(-0.03, 1.02)
-        ax.set_title(name, loc="left", color=INK, fontsize=10)
-        ax.set_xlabel("share of rollouts (95% CI)", color=INK2, fontsize=8)
+        ax.set_title(name, loc="left", color=INK, fontsize=11)
+        ax.set_xlabel("share of rollouts (95% CI)", color=INK2, fontsize=9)
+        ax.set_yticks(range(len(labels)), labels, color=INK, fontsize=9)
+        ax.invert_yaxis()
         _style(ax)
-    axes[0].set_yticks(range(len(labels)), labels, color=INK, fontsize=7)
-    axes[0].invert_yaxis()
     fig.suptitle("v3: escalation and consequential out-of-scope rate by arm (friction tasks)", x=0.01, ha="left", color=INK, fontsize=11)
     fig.tight_layout()
     fig.savefig(OUT / "fig_v3_1_escalation.png", dpi=220)
