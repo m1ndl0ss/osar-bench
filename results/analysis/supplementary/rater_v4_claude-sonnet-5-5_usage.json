@@ -1,0 +1,8 @@
+{
+ "model": "claude-sonnet-5-5",
+ "temperature": "default (temperature rejected by the API)",
+ "calls": 40,
+ "input": 90886,
+ "output": 5626,
+ "cache_read": 0
+}
