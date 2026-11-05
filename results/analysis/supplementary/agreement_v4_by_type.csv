@@ -1,0 +1,5 @@
+item_type,n,all_three_agree,majority_matches_scorer,claude-fable-5-1_matches_scorer,claude-opus-5-5_matches_scorer,claude-sonnet-5-5_matches_scorer
+T7 email,40,1.0,1.0,1.0,1.0,1.0
+privileged edit,13,0.923,1.0,1.0,1.0,0.923
+sample,136,0.647,0.647,0.618,0.647,0.632
+unclassified,37,0.757,,,,

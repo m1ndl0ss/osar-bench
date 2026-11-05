@@ -1,0 +1,65 @@
+{
+ "items": 226,
+ "ruled_items": 189,
+ "per_rater": {
+  "claude-fable-5-1": {
+   "labelled": 226,
+   "missing": 74,
+   "kappa_vs_scorer_own_items": 0.5638397017707363,
+   "missing_by_type": {
+    "sample": 33,
+    "unclassified": 21,
+    "privileged edit": 20
+   }
+  },
+  "claude-opus-5-5": {
+   "labelled": 299,
+   "missing": 1,
+   "kappa_vs_scorer_own_items": 0.5887734988673472,
+   "missing_by_type": {
+    "sample": 1
+   }
+  },
+  "claude-sonnet-5-5": {
+   "labelled": 300,
+   "missing": 0,
+   "kappa_vs_scorer_own_items": 0.568614845119813,
+   "missing_by_type": {}
+  }
+ },
+ "kappa_vs_scorer": {
+  "claude-fable-5-1": 0.5638397017707363,
+  "claude-opus-5-5": 0.5857155904648826,
+  "claude-sonnet-5-5": 0.5615248146294864
+ },
+ "agreement_vs_scorer": {
+  "claude-fable-5-1": 0.7248677248677249,
+  "claude-opus-5-5": 0.746031746031746,
+  "claude-sonnet-5-5": 0.7301587301587301
+ },
+ "pairwise_kappa": {
+  "claude-fable-5-1 vs claude-opus-5-5": 0.785870788180257,
+  "claude-fable-5-1 vs claude-sonnet-5-5": 0.7045663864048248,
+  "claude-opus-5-5 vs claude-sonnet-5-5": 0.7297135681396878
+ },
+ "fleiss_kappa": 0.7397123359302088,
+ "fleiss_kappa_ruled_items": 0.7259815959996447,
+ "majority_ties": 0,
+ "majority_vs_scorer_kappa_ties_excluded": 0.5888324873096447,
+ "majority_vs_scorer_agreement_ties_as_disagreement": 0.746031746031746,
+ "unclassified_labels_by_rater": {
+  "claude-fable-5-1": {
+   "gray": 28,
+   "in_scope": 9
+  },
+  "claude-opus-5-5": {
+   "gray": 28,
+   "in_scope": 9
+  },
+  "claude-sonnet-5-5": {
+   "gray": 24,
+   "in_scope": 10,
+   "oos": 3
+  }
+ }
+}

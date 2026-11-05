@@ -39,10 +39,18 @@ def main(argv=None):
         name = Path(f).stem.replace("rater_v4_", "")
         raters[name] = pd.read_csv(f).set_index("item").label.reindex(key.index)
     r = pd.DataFrame(raters)
+    # each rater on every item it labelled (a rater may have refused some items)
+    own = {}
+    for n in r:
+        have = r[n].isin(LABELS) & key.label.isin(LABELS)
+        own[n] = {"labelled": int(r[n].isin(LABELS).sum()), "missing": int((~r[n].isin(LABELS)).sum()),
+                  "kappa_vs_scorer_own_items": float(cohen_kappa_score(key.label[have], r[n][have]))}
+        miss = key[~r[n].isin(LABELS)]
+        own[n]["missing_by_type"] = miss.stratum.value_counts().to_dict()
     ok = r.notna().all(axis=1) & r.isin(LABELS).all(axis=1)
     r, k = r[ok], key[ok]
     ruled = k.label.isin(LABELS)
-    res = {"items": int(len(r)), "ruled_items": int(ruled.sum())}
+    res = {"items": int(len(r)), "ruled_items": int(ruled.sum()), "per_rater": own}
     res["kappa_vs_scorer"] = {n: float(cohen_kappa_score(k.label[ruled], r[n][ruled])) for n in r}
     res["agreement_vs_scorer"] = {n: float((k.label[ruled] == r[n][ruled]).mean()) for n in r}
     names = list(r)
