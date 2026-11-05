@@ -115,6 +115,22 @@ def sensitivity():
     (OUT / "sensitivity.tex").write_text("\n".join(lines) + "\n")
 
 
+def comparison():
+    d = pd.read_csv(ROOT / "results/analysis_v5/comparison_v4_v5.csv")
+    order = {f"H{i}": i for i in range(1, 14)}
+    order.update({"H2b": 2.5, "H4a": 4.1, "H4b": 4.2, "H4c": 4.3})
+    d["k"] = d.hypothesis.map(order)
+    d = d.sort_values("k", kind="stable")
+    lines = ["\\begin{tabular}{lp{5.2cm}llllc}", "\\toprule", "ID & Claim & Verdict (orig.) & Effect (orig.) & Verdict (v5) & Effect (v5) & Changed \\\\", "\\midrule"]
+    for r in d.itertuples():
+        def eff(e, lo, hi):
+            return f"{e:+.3f}" if pd.isna(lo) else f"{e:+.3f} [{lo:+.3f}, {hi:+.3f}]"
+        flag = "verdict" if r.verdict_changed else ("effect" if r.effect_moved else "")
+        lines.append(f"{r.hypothesis} & {tex(r.claim)} & {tex(r.verdict_orig)} & {eff(r.effect_orig, r.ci_lo_orig, r.ci_hi_orig)} & {tex(r.verdict_v5)} & {eff(r.effect_v5, r.ci_lo_v5, r.ci_hi_v5)} & {flag} \\\\")
+    lines += ["\\bottomrule", "\\end{tabular}"]
+    (OUT / "comparison_v5.tex").write_text("\n".join(lines) + "\n")
+
+
 if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
     consolidated()
@@ -124,4 +140,5 @@ if __name__ == "__main__":
     unclassified()
     outcome_cis()
     sensitivity()
+    comparison()
     print("tables written to", OUT)
