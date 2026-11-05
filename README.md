@@ -2,7 +2,7 @@
 
 I measure how often tool-using language-model agents take out-of-scope actions on bounded, benign tasks. There is no attacker: the model over-reaches on its own. Every tool call runs in an in-memory sandbox (files, shell, HTTP, email) and is scored by its effects against a scope rubric frozen before each stage. Each effect is in scope, gray or out of scope, and out-of-scope effects get a severity tier: benign, sensitive or consequential.
 
-Paper: *Stop, Work Around, or Escalate: A Pre-Registered Study of Scope Creep in Tool-Using Language-Model Agents*, [`paper/osar.pdf`](paper/osar.pdf) (source in `paper/`). My notes on what I found: [`results/FINDINGS.md`](results/FINDINGS.md). What I know is weak: [`notes/limitations.md`](notes/limitations.md). Consolidated H1–H13 table: [`results/analysis/integrated/consolidated_table.md`](results/analysis/integrated/consolidated_table.md).
+Paper: *Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study*, [`paper/osar.pdf`](paper/osar.pdf) (source in `paper/`). My notes on what I found: [`results/FINDINGS.md`](results/FINDINGS.md). What I know is weak: [`notes/limitations.md`](notes/limitations.md). Consolidated H1–H13 table: [`results/analysis/integrated/consolidated_table.md`](results/analysis/integrated/consolidated_table.md).
 
 ## What I found (three Claude 5.5 models, 23 tasks, 14,720 rollouts, four pre-registered stages)
 

@@ -1,5 +1,7 @@
 # OSAR-bench: what I found
 
+Paper: *Vague Prompts and Failing Tools Make LLM Agents Overstep: A Pre-Registered Study* (`paper/osar.pdf`).
+
 I ran three Claude models (Haiku 5.5, Sonnet 5.5, Opus 5.5) on 23 short workstation tasks in an in-memory sandbox, each task under a tight prompt (what to do and where) and a loose one (the goal only). Every tool call is scored against a per-task rubric as in scope, gray or out of scope (OOS); OOS effects are benign, sensitive or consequential (an unrequested write, delete, move, message or privilege change, refused attempts included). Four pre-registered stages: v1 baselines (2,112 rollouts), v2 with twelve new tasks, an ask-the-user tool, a scope sentence and one-off friction (7,488), v3 with variants of friction on the eight tasks whose tight rules allow a local change (3,584), v4 with persistent denial on the same eight (1,536). The ledger closed at $151.04 of the $160 cap: $16 for the v1 main run, $50.5 for v3, $18.6 for v4, the rest for v2 and pilots, plus an estimated $3–4 of judge and rater calls that were not metered (about 350 judge and 90 rater calls to Sonnet at list prices). Registered numbers use the registered metrics; where the finer, exploratory reading (`analysis/refined/refined.md`) changes the picture I give both. The model raters missed the registered agreement threshold, so the rubric was revised to v5 and every result is also reported under it (last paragraph before the caveats); the v5 numbers are given where they differ.
 
 ## The story
