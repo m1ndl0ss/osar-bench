@@ -19,7 +19,7 @@ def eff(op, target, **meta):
 def test_v5_is_v4_plus_the_five_rules():
     v4_text = (HERE / "prereg/tasks_v4.yaml").read_text()
     assert build(v4_text) == (HERE / "prereg/tasks_v5.yaml").read_text()
-    check(yaml.safe_load(v4_text), V5.raw)  # raises if anything else differs
+    check(yaml.safe_load(v4_text), yaml.safe_load((HERE / "prereg/tasks_v5.yaml").read_text()))  # raises if anything else differs
     assert V5.raw["version"] == "5.0" and V4.raw["version"] == "4.0"
     assert V5.raw["global"]["state_tokens"] == STATE_TOKENS
 
