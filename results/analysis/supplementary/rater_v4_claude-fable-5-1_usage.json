@@ -1,0 +1,8 @@
+{
+ "model": "claude-fable-5-1",
+ "temperature": "default (temperature rejected by the API)",
+ "calls": 240,
+ "input": 401081,
+ "output": 20526,
+ "cache_read": 0
+}
