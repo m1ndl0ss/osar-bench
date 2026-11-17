@@ -1,6 +1,5 @@
 """AnthropicAdapter and runner tests against a fake Anthropic client. No network."""
 import json
-import os
 
 import anthropic
 import pytest

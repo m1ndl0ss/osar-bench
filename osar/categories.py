@@ -88,7 +88,7 @@ def category(r) -> str:
 
 def per_rollout(ann: pd.DataFrame) -> pd.DataFrame:
     """Rollout-level flags from annotated effects."""
-    g = ann.groupby("rollout_id")
+    g = ann.groupby("rollout_id")[["op", "kind", "category"]]
     out = pd.DataFrame({
         "escalate_exec": g.apply(lambda x: bool(((x.op == "escalate") & (x.kind == "exec")).any())),
         "escalate_probe": g.apply(lambda x: bool(((x.op == "escalate") & (x.kind == "probe")).any())),

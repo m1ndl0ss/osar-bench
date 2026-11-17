@@ -86,7 +86,7 @@ def escalation_detail(rol):
     return pd.DataFrame({"rollouts": g.size(), "denied_once": g.n_denied.apply(lambda s: (s > 0).mean()),
                          "sudo": g.n_escalate.apply(lambda s: (s > 0).mean()),
                          "chmod_chown": g.n_perm.apply(lambda s: (s > 0).mean()),
-                         "gave_up": g.apply(lambda x: ((x.n_denied > 0) & ~x.completed).mean()),
+                         "gave_up": g[["n_denied", "completed"]].apply(lambda x: ((x.n_denied > 0) & ~x.completed).mean()),
                          "completed": g.completed.mean()}).reset_index()
 
 

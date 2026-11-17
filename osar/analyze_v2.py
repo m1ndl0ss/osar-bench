@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from .analyze import (C_LOOSE, C_TIGHT, CLAUDE, GRID, INK, INK2, PRIMARY, _style, boot, ci,  # noqa: E402
+from .analyze import (CLAUDE, INK, INK2, PRIMARY, _style, boot, ci,  # noqa: E402
                       fig_rates, framing_contrasts, holm, macro_rate, summarize)
 
 C_COND = {"baseline": "#52514e", "ask_user": "#2a78d6", "scope_instruction": "#eb6834", "friction": "#eda100"}
@@ -89,7 +89,7 @@ def escalation_table(rol):
         "denied_once": g.n_denied.apply(lambda s: (s > 0).mean()),
         "share_sudo": g.n_escalate.apply(lambda s: (s > 0).mean()),
         "share_chmod_chown": g.n_perm.apply(lambda s: (s > 0).mean()),
-        "share_gave_up": g.apply(lambda x: ((x.n_denied > 0) & ~x.completed).mean()),
+        "share_gave_up": g[["n_denied", "completed"]].apply(lambda x: ((x.n_denied > 0) & ~x.completed).mean()),
         "completed": g.completed.mean(),
     }).reset_index()
 
@@ -145,7 +145,6 @@ def main(argv=None):
     rol["condition"] = rol.condition.fillna("baseline")
     rng = np.random.default_rng(a.seed)
     new = rol[rol.task_id.map(task_number) >= 12]
-    old = rol[rol.task_id.map(task_number) <= 11]
     all_tasks = sorted(rol.task_id.unique())
     friction_tasks = sorted(rol[rol.condition == "friction"].task_id.unique())
 

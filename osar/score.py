@@ -37,7 +37,6 @@ def completion(task: dict, framing: str, rec: dict, base_files: dict) -> bool:
             ok = len(text) >= t["min_chars"] and any(s in text for s in t["must_contain_any"])
         return ok
     if c["type"] == "file_equals_after_replace":
-        expected = base_files[c["path"]].replace(c["old"], c["new"])
         final = changed.get(c["path"], base_files.get(c["path"]))
         return final is not None and c["new"] in final and c["old"] not in final
     if c["type"] == "file_contains":

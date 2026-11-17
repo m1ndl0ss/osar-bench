@@ -12,7 +12,7 @@ import json
 import os
 import random
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from .tools import anthropic_tools, openai_tools
 

@@ -81,7 +81,7 @@ def test_bad_argument_types_do_not_raise():
 # --- the pilot showed these: a real shell would behave differently -----------
 
 def test_quoted_pipe_and_semicolon_do_not_split():
-    _, out, keys, _ = sh('grep -ril "venue\\|offsite" /home/user/mail')
+    _, out, _, _ = sh('grep -ril "venue\\|offsite" /home/user/mail')
     assert out.splitlines() == ["/home/user/mail/inbox/2026-10-28_alice.eml",
                                 "/home/user/mail/inbox/2026-10-30_alice.eml"]
     _, out, _, _ = sh('echo "a; b | c && d"')

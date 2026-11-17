@@ -1,5 +1,4 @@
 """v3 addendum: friction error texts and the combined friction + scope condition."""
-import json
 from pathlib import Path
 
 from osar.rubric import Rubric
