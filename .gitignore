@@ -1,5 +1,25 @@
+# Python
 __pycache__/
+*.py[cod]
 .pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# Credentials and local environment
+.env
+.env.*
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Study outputs kept out of git
 results/raw/
 *.KEY.csv
 *_KEY.csv
@@ -7,5 +27,7 @@ results/scored/dryrun/
 results/analysis/dryrun/
 results/scored/dryrun2/
 results/analysis/dryrun2/
+
+# Private drafts
 paper/AUTHOR_BRIEF.md
 paper/linkedin_draft.md

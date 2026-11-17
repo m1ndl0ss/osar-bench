@@ -9,6 +9,7 @@ authors:
 doi: 10.5281/zenodo.23978766
 repository-code: "https://github.com/m1ndl0ss/osar-bench"
 url: "https://github.com/m1ndl0ss/osar-bench"
+license: MIT
 version: 1.0.0
 date-released: 2026-11-05
 keywords:
